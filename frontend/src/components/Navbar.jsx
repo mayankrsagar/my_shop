@@ -58,6 +58,13 @@ export default function Navbar() {
                 </span>
               </Link>
             )}
+            <Link href="/developer" className="nav-link group">
+              <span className="relative flex items-center space-x-1">
+                <span className="text-purple-400">👨‍💻</span>
+                <span>Developer</span>
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-full transition-all duration-300"></span>
+              </span>
+            </Link>
           </div>
 
           {/* Right Side Actions */}

@@ -176,6 +176,8 @@ export default function ProductDetailPage() {
                       name="name"
                       value={editForm.name}
                       onChange={handleInputChange}
+                      maxLength="100"
+                      pattern="[a-zA-Z0-9\s\-_]+"
                       className="text-3xl font-bold text-gray-900 w-full border-b-2 border-purple-600 focus:outline-none"
                     />
                   ) : (
@@ -190,6 +192,8 @@ export default function ProductDetailPage() {
                           name="category"
                           value={editForm.category}
                           onChange={handleInputChange}
+                          maxLength="50"
+                          pattern="[a-zA-Z\s]+"
                           className="bg-transparent focus:outline-none"
                         />
                       ) : (
@@ -244,6 +248,9 @@ export default function ProductDetailPage() {
                       name="price"
                       value={editForm.price}
                       onChange={handleInputChange}
+                      min="1"
+                      max="1000000"
+                      step="0.01"
                       className="text-4xl font-bold text-purple-600 border-b-2 border-purple-600 focus:outline-none w-32"
                     />
                   ) : (
@@ -271,6 +278,7 @@ export default function ProductDetailPage() {
                     value={editForm.description}
                     onChange={handleInputChange}
                     rows={4}
+                    maxLength="1000"
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
                   />
                 ) : (

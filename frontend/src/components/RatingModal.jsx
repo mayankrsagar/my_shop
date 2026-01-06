@@ -76,6 +76,7 @@ export default function RatingModal({ product, isOpen, onClose, onRatingSubmitte
             className="w-full p-3 border border-gray-300 rounded-lg resize-none h-20"
             value={review}
             onChange={(e) => setReview(e.target.value)}
+            maxLength="500"
           />
           
           <div className="flex space-x-3">

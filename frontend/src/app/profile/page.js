@@ -46,10 +46,16 @@ export default function ProfilePage() {
     setErrors({});
 
     try {
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/update`, {
-        name,
-        email,
-      });
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/profile/update`,
+        {
+          name,
+          email,
+        },
+        {
+          withCredentials: true,
+        }
+      );
       await checkAuth(); // Refresh user data
       setModal({
         isOpen: true,
@@ -86,6 +92,7 @@ export default function ProfilePage() {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
         }
       );
       setAvatar(res.data.avatar);
@@ -111,7 +118,10 @@ export default function ProfilePage() {
       onConfirm: async () => {
         try {
           await axios.delete(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`,
+            {
+              withCredentials: true,
+            }
           );
           setAvatar("");
           await checkAuth(); // Refresh user data
@@ -189,11 +199,16 @@ export default function ProfilePage() {
             <input
               type="text"
               required
+              minLength="2"
+              maxLength="50"
+              pattern="[a-zA-Z\s]+"
               className={`w-full px-3 py-2 border rounded-md ${
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) =>
+                setName(e.target.value.replace(/[^a-zA-Z\s]/g, ""))
+              }
             />
             {errors.name && (
               <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -207,11 +222,13 @@ export default function ProfilePage() {
             <input
               type="email"
               required
+              maxLength="100"
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
               className={`w-full px-3 py-2 border rounded-md ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase().trim())}
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email}</p>

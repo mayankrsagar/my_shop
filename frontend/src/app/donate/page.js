@@ -217,9 +217,13 @@ export default function DonatePage() {
                   <input
                     type="text"
                     placeholder="Enter your name"
+                    required
+                    minLength="2"
+                    maxLength="50"
+                    pattern="[a-zA-Z\s]+"
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={donorName}
-                    onChange={(e) => setDonorName(e.target.value)}
+                    onChange={(e) => setDonorName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                   />
                 </div>
                 <div>
@@ -229,9 +233,11 @@ export default function DonatePage() {
                   <input
                     type="email"
                     placeholder="Enter your email"
+                    maxLength="100"
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={donorEmail}
-                    onChange={(e) => setDonorEmail(e.target.value)}
+                    onChange={(e) => setDonorEmail(e.target.value.toLowerCase().trim())}
                   />
                 </div>
               </div>

@@ -81,7 +81,7 @@ export default function Home() {
         if (sort) params.sort = sort;
         if (debouncedSearch) params.search = debouncedSearch;
 
-        const res = await axios.get("http://localhost:5000/api/products", {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
           params,
         });
         setProducts(res.data);

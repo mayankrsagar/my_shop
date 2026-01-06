@@ -6,13 +6,13 @@ import express from "express";
 import helmet from "helmet";
 
 import connectDB from "./config/database.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import paymentRoutes from "./routes/payment.js";
 import productRoutes from "./routes/productRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import sellerRoutes from "./routes/sellerRoutes.js";
-import paymentRoutes from "./routes/payment.js";
 
 const app = express();
 

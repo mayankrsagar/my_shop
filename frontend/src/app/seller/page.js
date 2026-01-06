@@ -58,7 +58,7 @@ export default function SellerDashboard() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/seller/products");
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/seller/products`);
       setProducts(res.data);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -121,7 +121,7 @@ export default function SellerDashboard() {
     }
     
     try {
-      await axios.post("http://localhost:5000/api/seller/products", submitData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/seller/products`, submitData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setFormData({ name: "", category: "", price: "", description: "", image: "", imageFile: null });
@@ -146,7 +146,7 @@ export default function SellerDashboard() {
     if (!confirm("Are you sure you want to delete this product?")) return;
     
     try {
-      await axios.delete(`http://localhost:5000/api/seller/products/${productId}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/seller/products/${productId}`);
       fetchProducts();
     } catch (err) {
       alert("Error deleting product: " + err.response?.data?.error);

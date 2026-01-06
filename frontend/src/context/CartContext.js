@@ -1,7 +1,14 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
-import { useAuth } from "./AuthContext";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+
+import axios from 'axios';
+
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
@@ -9,64 +16,73 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const { user } = useAuth();
 
-  const loadCart = async () => {
-    if (!user) {
-      setCart([]);
-      return;
-    }
-    try {
-      const res = await axios.get("http://localhost:5000/api/cart");
-      setCart(res.data);
-    } catch (err) {
-      console.error('Error loading cart:', err);
-      setCart([]);
-    }
-  };
-
   useEffect(() => {
+    const loadCart = async () => {
+      if (!user) {
+        setCart([]);
+        return;
+      }
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/cart`
+        );
+        setCart(res.data);
+      } catch (err) {
+        console.error("Error loading cart:", err);
+        setCart([]);
+      }
+    };
     loadCart();
   }, [user]);
 
   const addToCart = async (product) => {
     if (!user) {
-      alert('Please login to add items to cart');
+      alert("Please login to add items to cart");
       return;
     }
-    
+
     try {
-      const res = await axios.post("http://localhost:5000/api/cart/add", {
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.image
-      });
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/cart/add`,
+        {
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        }
+      );
       setCart(res.data);
     } catch (err) {
-      console.error('Error adding to cart:', err);
+      console.error("Error adding to cart:", err);
     }
   };
 
   const updateCartItem = async (productId, qty) => {
     if (!user) return;
-    
+
     try {
-      const res = await axios.put(`http://localhost:5000/api/cart/item/${productId}`, {
-        qty
-      });
+      const res = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/cart/item/${productId}`,
+        {
+          qty,
+        }
+      );
       setCart(res.data);
     } catch (err) {
-      console.error('Error updating cart item:', err);
+      console.error("Error updating cart item:", err);
     }
   };
 
   const removeFromCart = async (productId) => {
     if (!user) return;
-    
+
     try {
-      const res = await axios.delete(`http://localhost:5000/api/cart/item/${productId}`);
+      const res = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/cart/item/${productId}`
+      );
       setCart(res.data);
     } catch (err) {
-      console.error('Error removing from cart:', err);
+      console.error("Error removing from cart:", err);
     }
   };
 

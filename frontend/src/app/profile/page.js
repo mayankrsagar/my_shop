@@ -30,7 +30,7 @@ export default function ProfilePage() {
     setErrors({});
 
     try {
-      await axios.put("http://localhost:5000/api/profile/update", {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/update`, {
         name,
         email,
       });
@@ -60,7 +60,7 @@ export default function ProfilePage() {
 
     setUploading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/profile/avatar", formData, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setAvatar(res.data.avatar);
@@ -76,7 +76,7 @@ export default function ProfilePage() {
     if (!confirm("Are you sure you want to delete your avatar?")) return;
 
     try {
-      await axios.delete("http://localhost:5000/api/profile/avatar");
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`);
       setAvatar("");
       await checkAuth(); // Refresh user data
     } catch (err) {

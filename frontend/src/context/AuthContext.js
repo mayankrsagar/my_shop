@@ -1,6 +1,12 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -16,7 +22,9 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/me");
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`
+      );
       setUser(res.data.user);
     } catch (err) {
       setUser(null);
@@ -26,27 +34,33 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await axios.post("http://localhost:5000/api/auth/login", {
-      email,
-      password,
-    });
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+      {
+        email,
+        password,
+      }
+    );
     setUser(res.data.user);
     return res.data;
   };
 
   const signup = async (name, email, password, role) => {
-    const res = await axios.post("http://localhost:5000/api/auth/signup", {
-      name,
-      email,
-      password,
-      role,
-    });
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`,
+      {
+        name,
+        email,
+        password,
+        role,
+      }
+    );
     setUser(res.data.user);
     return res.data;
   };
 
   const logout = async () => {
-    await axios.post("http://localhost:5000/api/auth/logout");
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`);
     setUser(null);
   };
 

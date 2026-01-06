@@ -16,9 +16,9 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       const [statsRes, usersRes, productsRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/admin/dashboard"),
-        axios.get("http://localhost:5000/api/admin/users"),
-        axios.get("http://localhost:5000/api/admin/products"),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/products`),
       ]);
       setStats(statsRes.data);
       setUsers(usersRes.data);
@@ -38,7 +38,7 @@ export default function AdminDashboard() {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/admin/users/${userId}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${userId}`);
       setUsers(users.filter((user) => user._id !== userId));
       fetchData(); // Refresh stats
     } catch (err) {

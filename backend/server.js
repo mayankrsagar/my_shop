@@ -11,9 +11,12 @@ import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import paymentRoutes from './routes/payment.js';
+import categoryRoutes from './routes/categoryRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import sellerRoutes from './routes/sellerRoutes.js';
+import ratingRoutes from './routes/ratingRoutes.js';
+import favoritesRoutes from './routes/favoritesRoutes.js';
 
 const app = express();
 
@@ -45,6 +48,9 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/seller", sellerRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api", categoryRoutes);
+app.use("/api/ratings", ratingRoutes);
+app.use("/api", favoritesRoutes);
 
 // --- GLOBAL ERROR HANDLER ---
 // This must be the LAST middleware added to the app

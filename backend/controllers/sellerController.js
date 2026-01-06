@@ -1,9 +1,10 @@
 import Product from '../models/Product.js';
+import Order from '../models/Order.js';
 import cloudinary from '../config/cloudinary.js';
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, category, price, description, image } = req.body;
+    const { name, category, price, originalPrice, discount, description, image } = req.body;
     let imageUrl = image;
     
     // If file uploaded, use cloudinary
@@ -17,10 +18,25 @@ export const createProduct = async (req, res) => {
       imageUrl = result.secure_url;
     }
     
+    // Calculate price based on discount
+    let finalPrice = parseFloat(price);
+    let finalOriginalPrice = originalPrice ? parseFloat(originalPrice) : finalPrice;
+    let finalDiscount = discount ? parseFloat(discount) : 0;
+    
+    // If discount is provided, calculate the discounted price
+    if (finalDiscount > 0) {
+      if (!originalPrice) {
+        finalOriginalPrice = finalPrice;
+        finalPrice = finalPrice * (1 - finalDiscount / 100);
+      }
+    }
+    
     const product = await Product.create({
       name,
       category,
-      price,
+      price: finalPrice,
+      originalPrice: finalOriginalPrice,
+      discount: finalDiscount,
       description,
       image: imageUrl,
       sellerId: req.user.id
@@ -44,11 +60,31 @@ export const getSellerProducts = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { productId } = req.params;
-    const updates = req.body;
+    const { name, category, price, originalPrice, discount, description } = req.body;
+    
+    // Calculate price based on discount if provided
+    let updateData = { name, category, description };
+    
+    if (price !== undefined) {
+      let finalPrice = parseFloat(price);
+      let finalOriginalPrice = originalPrice ? parseFloat(originalPrice) : finalPrice;
+      let finalDiscount = discount ? parseFloat(discount) : 0;
+      
+      if (finalDiscount > 0) {
+        if (!originalPrice) {
+          finalOriginalPrice = finalPrice;
+          finalPrice = finalPrice * (1 - finalDiscount / 100);
+        }
+      }
+      
+      updateData.price = finalPrice;
+      updateData.originalPrice = finalOriginalPrice;
+      updateData.discount = finalDiscount;
+    }
     
     const product = await Product.findOneAndUpdate(
       { _id: productId, sellerId: req.user.id },
-      updates,
+      updateData,
       { new: true }
     );
     
@@ -76,6 +112,53 @@ export const deleteProduct = async (req, res) => {
     }
     
     res.json({ message: 'Product deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getSellerSales = async (req, res) => {
+  try {
+    const orders = await Order.find({ 'items.sellerId': req.user.id })
+      .populate('items.productId', 'name')
+      .sort({ createdAt: -1 });
+
+    const salesData = orders.flatMap(order => 
+      order.items
+        .filter(item => item.sellerId.toString() === req.user.id)
+        .map(item => ({
+          date: order.createdAt,
+          productName: item.productId.name,
+          quantity: item.quantity,
+          amount: item.price * item.quantity,
+          orderId: order._id
+        }))
+    );
+
+    const totalSales = salesData.reduce((sum, sale) => sum + sale.amount, 0);
+    const totalOrders = salesData.length;
+
+    const monthlyData = salesData.reduce((acc, sale) => {
+      const month = new Date(sale.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+      acc[month] = (acc[month] || 0) + sale.amount;
+      return acc;
+    }, {});
+
+    const dailyData = salesData
+      .filter(sale => new Date(sale.date) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+      .reduce((acc, sale) => {
+        const day = new Date(sale.date).toLocaleDateString();
+        acc[day] = (acc[day] || 0) + sale.amount;
+        return acc;
+      }, {});
+
+    res.json({
+      totalSales,
+      totalOrders,
+      monthlyData,
+      dailyData,
+      recentSales: salesData.slice(0, 10)
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -7,7 +7,6 @@ import {
 } from 'react';
 
 import axios from 'axios';
-import API_URL from '../config/api';
 
 const AuthContext = createContext();
 
@@ -23,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/auth/me`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`);
       setUser(res.data.user);
     } catch (err) {
       setUser(null);
@@ -33,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await axios.post(`${API_URL}/api/auth/login`, {
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
       email,
       password,
     });
@@ -43,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password, role) => {
     const res = await axios.post(
-      `${API_URL}/api/auth/signup`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`,
       {
         name,
         email,
@@ -56,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await axios.post(`${API_URL}/api/auth/logout`);
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`);
     setUser(null);
   };
 

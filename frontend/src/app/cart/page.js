@@ -86,7 +86,7 @@ export default function CartPage() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/payment/create-order", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-order`, {
         method: "POST",
         credentials: "include",
       });
@@ -101,7 +101,7 @@ export default function CartPage() {
         order_id: orderId,
         handler: async (response) => {
           try {
-            const verifyResponse = await fetch("/api/payment/verify", {
+            const verifyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/verify`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",

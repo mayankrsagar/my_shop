@@ -10,8 +10,12 @@ export const validateProduct = [
     .escape(),
   
   body('category')
-    .isIn(['Innerwear', 'Clothing'])
-    .withMessage('Invalid category selected'),
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Category must be between 2 and 50 characters')
+    .matches(/^[a-zA-Z0-9\s\-&().,]+$/)
+    .withMessage('Category contains invalid characters')
+    .escape(),
   
   body('price')
     .isFloat({ min: 1, max: 999999 })
@@ -22,8 +26,6 @@ export const validateProduct = [
     .trim()
     .isLength({ min: 10, max: 500 })
     .withMessage('Description must be between 10 and 500 characters')
-    .matches(/^[a-zA-Z0-9\s\-&().,!?]+$/)
-    .withMessage('Description contains invalid characters')
     .escape(),
   
   body('image')

@@ -11,6 +11,7 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 
+import Modal from '../../components/Modal';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../context/AuthContext';
 
@@ -23,6 +24,13 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [modal, setModal] = useState({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
 
   useEffect(() => {
     if (user) {
@@ -38,12 +46,17 @@ export default function ProfilePage() {
     setErrors({});
 
     try {
-      await axios.put(`${process.env.NEXT_API_URL}/api/profile/update`, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/update`, {
         name,
         email,
       });
       await checkAuth(); // Refresh user data
-      alert("Profile updated successfully!");
+      setModal({
+        isOpen: true,
+        type: "success",
+        title: "Success!",
+        message: "Profile updated successfully!",
+      });
     } catch (err) {
       if (err.response?.data?.details) {
         const validationErrors = {};
@@ -69,7 +82,7 @@ export default function ProfilePage() {
     setUploading(true);
     try {
       const res = await axios.post(
-        `${process.env.NEXT_API_URL}/api/profile/avatar`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -78,22 +91,40 @@ export default function ProfilePage() {
       setAvatar(res.data.avatar);
       await checkAuth(); // Refresh user data
     } catch (err) {
-      alert("Error uploading avatar: " + err.response?.data?.error);
+      setModal({
+        isOpen: true,
+        type: "error",
+        title: "Upload Failed",
+        message: err.response?.data?.error || "Error uploading avatar",
+      });
     } finally {
       setUploading(false);
     }
   };
 
   const handleDeleteAvatar = async () => {
-    if (!confirm("Are you sure you want to delete your avatar?")) return;
-
-    try {
-      await axios.delete(`${process.env.NEXT_API_URL}/api/profile/avatar`);
-      setAvatar("");
-      await checkAuth(); // Refresh user data
-    } catch (err) {
-      alert("Error deleting avatar: " + err.response?.data?.error);
-    }
+    setModal({
+      isOpen: true,
+      type: "confirm",
+      title: "Delete Avatar",
+      message: "Are you sure you want to delete your avatar?",
+      onConfirm: async () => {
+        try {
+          await axios.delete(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`
+          );
+          setAvatar("");
+          await checkAuth(); // Refresh user data
+        } catch (err) {
+          setModal({
+            isOpen: true,
+            type: "error",
+            title: "Delete Failed",
+            message: err.response?.data?.error || "Error deleting avatar",
+          });
+        }
+      },
+    });
   };
 
   return (
@@ -208,6 +239,15 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
+
+      <Modal
+        isOpen={modal.isOpen}
+        onClose={() => setModal({ ...modal, isOpen: false })}
+        type={modal.type}
+        title={modal.title}
+        message={modal.message}
+        onConfirm={modal.onConfirm}
+      />
     </ProtectedRoute>
   );
 }

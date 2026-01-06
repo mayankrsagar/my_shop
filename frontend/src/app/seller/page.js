@@ -6,74 +6,75 @@ import {
 } from 'react';
 
 import axios from 'axios';
+import Image from 'next/image';
+import { FaPlus, FaTrash, FaChartLine, FaBox, FaStar, FaRocket } from 'react-icons/fa';
+import { HiSparkles } from 'react-icons/hi';
 
 import ProtectedRoute from '../../components/ProtectedRoute';
 
 export default function SellerDashboard() {
   const [products, setProducts] = useState([]);
+  const [salesData, setSalesData] = useState(null);
+  const [activeTab, setActiveTab] = useState("products");
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [customCategory, setCustomCategory] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     category: "",
     price: "",
+    originalPrice: "",
+    discount: "",
     description: "",
     image: "",
     imageFile: null,
   });
+  const [editingProduct, setEditingProduct] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.name.trim()) {
       newErrors.name = "Product name is required";
-    } else if (formData.name.length < 2 || formData.name.length > 100) {
-      newErrors.name = "Product name must be between 2 and 100 characters";
-    } else if (!/^[a-zA-Z0-9\s\-&().,]+$/.test(formData.name)) {
-      newErrors.name = "Product name contains invalid characters";
     }
-
-    if (!formData.category) {
+    if (formData.category === "custom") {
+      if (!customCategory.trim()) {
+        newErrors.category = "Custom category cannot be empty";
+      }
+    } else if (!formData.category) {
       newErrors.category = "Category is required";
     }
-
-    if (!formData.price) {
-      newErrors.price = "Price is required";
-    } else if (
-      isNaN(formData.price) ||
-      formData.price < 1 ||
-      formData.price > 999999
-    ) {
-      newErrors.price = "Price must be between 1 and 999999";
+    if (!formData.price || formData.price < 1) {
+      newErrors.price = "Valid price is required";
     }
-
     if (!formData.description.trim()) {
       newErrors.description = "Description is required";
-    } else if (
-      formData.description.length < 10 ||
-      formData.description.length > 500
-    ) {
-      newErrors.description =
-        "Description must be between 10 and 500 characters";
-    } else if (!/^[a-zA-Z0-9\s\-&().,!?]+$/.test(formData.description)) {
-      newErrors.description = "Description contains invalid characters";
     }
-
     if (!formData.imageFile && !formData.image) {
       newErrors.image = "Product image is required";
-    } else if (formData.image && !/^https?:\/\/.+/.test(formData.image)) {
-      newErrors.image = "Please provide a valid image URL";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const fetchSalesData = useCallback(async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/seller/sales`
+      );
+      setSalesData(res.data);
+    } catch (err) {
+      console.error("Error fetching sales data:", err);
+    }
+  }, []);
+
   const fetchProducts = useCallback(async () => {
     try {
       const res = await axios.get(
-        `${process.env.NEXT_API_URL}/api/seller/products`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products`
       );
       setProducts(res.data);
     } catch (err) {
@@ -81,325 +82,468 @@ export default function SellerDashboard() {
     }
   }, []);
 
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/categories`
+      );
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file type and size
-      if (!file.type.startsWith("image/")) {
-        setErrors({ ...errors, image: "Please select a valid image file" });
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        // 5MB limit
-        setErrors({ ...errors, image: "Image size must be less than 5MB" });
-        return;
-      }
-
-      setFormData({ ...formData, imageFile: file, image: "" });
-      setErrors({ ...errors, image: "" });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleUrlChange = (e) => {
-    const url = e.target.value;
-    setFormData({ ...formData, image: url, imageFile: null });
-    setImagePreview(url);
-    if (url && !/^https?:\/\/.+/.test(url)) {
-      setErrors({ ...errors, image: "Please provide a valid image URL" });
-    } else {
-      setErrors({ ...errors, image: "" });
-    }
-  };
+    fetchCategories();
+    fetchSalesData();
+  }, [fetchProducts, fetchCategories, fetchSalesData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting || !validateForm()) return;
 
-    if (!validateForm()) return;
-
+    setIsSubmitting(true);
     const submitData = new FormData();
     submitData.append("name", formData.name.trim());
-    submitData.append("category", formData.category);
+    submitData.append(
+      "category",
+      formData.category === "custom" ? customCategory.trim() : formData.category
+    );
     submitData.append("price", formData.price);
+    if (formData.originalPrice) submitData.append("originalPrice", formData.originalPrice);
+    if (formData.discount) submitData.append("discount", formData.discount);
     submitData.append("description", formData.description.trim());
 
     if (formData.imageFile) {
       submitData.append("productImage", formData.imageFile);
-    } else if (formData.image) {
+    } else {
       submitData.append("image", formData.image);
     }
 
     try {
-      await axios.post(
-        `${process.env.NEXT_API_URL}/api/seller/products`,
-        submitData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      if (editingProduct) {
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products/${editingProduct._id}`,
+          Object.fromEntries(submitData)
+        );
+      } else {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products`,
+          submitData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+      }
       setFormData({
         name: "",
         category: "",
         price: "",
+        originalPrice: "",
+        discount: "",
         description: "",
         image: "",
         imageFile: null,
       });
+      setCustomCategory("");
       setImagePreview("");
       setErrors({});
       setShowForm(false);
+      setEditingProduct(null);
       fetchProducts();
+      fetchCategories();
     } catch (err) {
-      if (err.response?.data?.details) {
-        const validationErrors = {};
-        err.response.data.details.forEach((detail) => {
-          validationErrors[detail.path] = detail.msg;
-        });
-        setErrors(validationErrors);
-      } else {
-        setErrors({
-          general: err.response?.data?.error || "Error creating product",
-        });
-      }
+      setErrors({
+        general: err.response?.data?.error || "Error saving product",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (productId) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-
+    if (!confirm("Are you sure?")) return;
+    setDeletingId(productId);
     try {
       await axios.delete(
-        `${process.env.NEXT_API_URL}/api/seller/products/${productId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products/${productId}`
       );
       fetchProducts();
     } catch (err) {
-      alert("Error deleting product: " + err.response?.data?.error);
+      alert("Error deleting product");
+    } finally {
+      setDeletingId(null);
     }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      category: product.category,
+      price: product.originalPrice || product.price,
+      originalPrice: product.originalPrice || "",
+      discount: product.discount || "",
+      description: product.description,
+      image: product.image,
+      imageFile: null,
+    });
+    setImagePreview(product.image);
+    setShowForm(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProduct(null);
+    setFormData({
+      name: "",
+      category: "",
+      price: "",
+      originalPrice: "",
+      discount: "",
+      description: "",
+      image: "",
+      imageFile: null,
+    });
+    setImagePreview("");
+    setShowForm(false);
   };
 
   return (
     <ProtectedRoute allowedRoles={["seller", "admin"]}>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Seller Dashboard</h1>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            {showForm ? "Cancel" : "Add Product"}
-          </button>
+      <div className="min-h-screen space-y-8">
+        {/* Header */}
+        <div className="glass rounded-2xl p-6 border border-white/20">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-3">
+              <FaRocket className="text-3xl text-yellow-400 float" />
+              <div>
+                <h1 className="text-4xl font-bold gradient-text">🏪 Seller Dashboard</h1>
+                <p className="text-white/70 mt-1">Manage your magical products and sales</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => setActiveTab("products")}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  activeTab === "products"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                <FaBox />
+                <span>Products</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("sales")}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  activeTab === "sales"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                <FaChartLine />
+                <span>Sales</span>
+              </button>
+              {activeTab === "products" && (
+                <button
+                  onClick={() => {
+                    if (showForm && editingProduct) {
+                      handleCancelEdit();
+                    } else {
+                      setShowForm(!showForm);
+                    }
+                  }}
+                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg"
+                >
+                  <FaPlus />
+                  <span>{showForm ? (editingProduct ? "Cancel Edit" : "Cancel") : "Add Product"}</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
-        {showForm && (
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Add New Product</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {errors.general && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                  {errors.general}
-                </div>
-              )}
-              <div>
-                <input
-                  type="text"
-                  placeholder="Product Name"
-                  className={`w-full p-2 border rounded ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                )}
-              </div>
-              <div>
-                <select
-                  className={`w-full p-2 border rounded ${
-                    errors.category ? "border-red-500" : "border-gray-300"
-                  }`}
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value })
-                  }
-                  required
-                >
-                  <option value="">Select Category</option>
-                  <option value="Innerwear">Innerwear</option>
-                  <option value="Clothing">Clothing</option>
-                </select>
-                {errors.category && (
-                  <p className="mt-1 text-sm text-red-600">{errors.category}</p>
-                )}
-              </div>
-              <div>
-                <input
-                  type="number"
-                  placeholder="Price"
-                  className={`w-full p-2 border rounded ${
-                    errors.price ? "border-red-500" : "border-gray-300"
-                  }`}
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: e.target.value })
-                  }
-                  min="1"
-                  max="999999"
-                  required
-                />
-                {errors.price && (
-                  <p className="mt-1 text-sm text-red-600">{errors.price}</p>
-                )}
-              </div>
-              <div>
-                <textarea
-                  placeholder="Description (10-500 characters)"
-                  className={`w-full p-2 border rounded ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  minLength="10"
-                  maxLength="500"
-                  required
-                />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.description}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Product Image
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className={`w-full p-2 border rounded ${
-                    errors.image ? "border-red-500" : "border-gray-300"
-                  }`}
-                  onChange={handleFileChange}
-                />
-                <div className="text-center text-gray-500">OR</div>
-                <input
-                  type="url"
-                  placeholder="Image URL (https://...)"
-                  className={`w-full p-2 border rounded ${
-                    errors.image ? "border-red-500" : "border-gray-300"
-                  }`}
-                  value={formData.image}
-                  onChange={handleUrlChange}
-                />
-                {errors.image && (
-                  <p className="mt-1 text-sm text-red-600">{errors.image}</p>
-                )}
-                {imagePreview && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Preview:
-                    </label>
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded border"
-                      onError={() =>
-                        setErrors({ ...errors, image: "Invalid image URL" })
-                      }
-                    />
+        {/* Sales Tab */}
+        {activeTab === "sales" && (
+          <div className="space-y-6">
+            {salesData ? (
+              <>
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="glass rounded-2xl p-6 border border-white/20 card-hover">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
+                        <span className="text-2xl text-white">💰</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white/80">Total Sales</h3>
+                        <p className="text-3xl font-bold gradient-text">₹{salesData.totalSales}</p>
+                      </div>
+                    </div>
                   </div>
-                )}
+                  <div className="glass rounded-2xl p-6 border border-white/20 card-hover">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl">
+                        <span className="text-2xl text-white">📦</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white/80">Total Orders</h3>
+                        <p className="text-3xl font-bold gradient-text">{salesData.totalOrders}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="glass rounded-2xl p-6 border border-white/20">
+                    <h3 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+                      <span>📈</span>
+                      <span>Monthly Sales</span>
+                    </h3>
+                    <div className="space-y-3">
+                      {Object.entries(salesData.monthlyData).map(([month, amount]) => (
+                        <div key={month} className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                          <span className="text-white/80">{month}</span>
+                          <span className="font-semibold gradient-text">₹{amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="glass rounded-2xl p-6 border border-white/20">
+                    <h3 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+                      <span>📅</span>
+                      <span>Daily Sales (Last 30 Days)</span>
+                    </h3>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {Object.entries(salesData.dailyData).map(([day, amount]) => (
+                        <div key={day} className="flex justify-between items-center p-2 bg-white/5 rounded-lg">
+                          <span className="text-white/80 text-sm">{day}</span>
+                          <span className="font-semibold gradient-text text-sm">₹{amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="glass rounded-2xl p-12 text-center border border-white/20">
+                <div className="text-6xl mb-4">📈</div>
+                <p className="text-xl text-white/80">No sales data available yet</p>
+                <p className="text-white/60 mt-2">Start selling to see your analytics!</p>
               </div>
-              <button
-                type="submit"
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Create Product
-              </button>
-            </form>
+            )}
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b">
-            <h2 className="text-xl font-semibold">
-              My Products ({products.length})
-            </h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Created
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {products.map((product) => (
-                  <tr key={product._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img
-                          className="h-10 w-10 rounded object-cover"
+        {/* Products Tab */}
+        {activeTab === "products" && (
+          <div className="space-y-6">
+            {/* Add Product Form */}
+            {showForm && (
+              <div className="glass rounded-2xl p-6 border border-white/20">
+                <h2 className="text-2xl font-semibold text-white mb-6 flex items-center space-x-2">
+                  <HiSparkles className="text-yellow-400" />
+                  <span>{editingProduct ? "Edit Product" : "Add New Magical Product"}</span>
+                </h2>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input
+                    type="text"
+                    placeholder="Product Name"
+                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                  
+                  <select
+                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 appearance-none cursor-pointer"
+                    value={formData.category === "custom" ? "custom" : formData.category}
+                    onChange={(e) => {
+                      if (e.target.value === "custom") {
+                        setFormData({ ...formData, category: "custom" });
+                      } else {
+                        setFormData({ ...formData, category: e.target.value });
+                        setCustomCategory("");
+                      }
+                    }}
+                    required
+                  >
+                    <option value="" className="bg-gray-800 text-white">Select Category</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category} className="bg-gray-800 text-white">
+                        {category}
+                      </option>
+                    ))}
+                    <option value="custom" className="bg-gray-800 text-white">Add New Category</option>
+                  </select>
+                  
+                  {formData.category === "custom" && (
+                    <input
+                      type="text"
+                      placeholder="Enter new category"
+                      className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                    />
+                  )}
+                  
+                  <input
+                    type="number"
+                    placeholder="Price (₹)"
+                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    required
+                  />
+                  
+                  <input
+                    type="number"
+                    placeholder="Discount (%) - Optional"
+                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    value={formData.discount}
+                    onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                    min="0"
+                    max="100"
+                  />
+                  
+                  <textarea
+                    placeholder="Product Description"
+                    className="md:col-span-2 w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 h-32 resize-none"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    required
+                  />
+                  
+                  {!editingProduct && (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="md:col-span-2 w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-purple-600 file:to-pink-600 file:text-white file:cursor-pointer hover:file:from-purple-700 hover:file:to-pink-700 transition-all duration-300"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setFormData({ ...formData, imageFile: file, image: "" });
+                          const reader = new FileReader();
+                          reader.onloadend = () => setImagePreview(reader.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  )}
+                  
+                  {imagePreview && (
+                    <div className="md:col-span-2">
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        width={200}
+                        height={200}
+                        className="rounded-xl object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="md:col-span-2 btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  >
+                    <FaPlus />
+                    <span>{isSubmitting ? (editingProduct ? "Updating..." : "Creating...") : (editingProduct ? "Update Product" : "Create Product")}</span>
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* Products Grid */}
+            <div className="glass rounded-2xl border border-white/20 overflow-hidden">
+              <div className="p-6 border-b border-white/10">
+                <h2 className="text-2xl font-semibold text-white flex items-center space-x-2">
+                  <FaBox className="text-purple-400" />
+                  <span>My Products ({products.length})</span>
+                </h2>
+              </div>
+              
+              {products.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                  {products.map((product) => (
+                    <div key={product._id} className="bg-white/5 rounded-xl p-4 card-hover border border-white/10">
+                      <div className="relative mb-4">
+                        <Image
                           src={product.image}
                           alt={product.name}
+                          width={300}
+                          height={200}
+                          className="w-full h-48 object-cover rounded-lg"
                         />
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {product.name}
+                        <button
+                          onClick={() => handleDelete(product._id)}
+                          disabled={deletingId === product._id}
+                          className="absolute top-2 right-2 p-2 bg-red-500/80 backdrop-blur-sm rounded-lg text-white hover:bg-red-600/80 transition-all duration-300 disabled:opacity-50"
+                        >
+                          <FaTrash className="text-sm" />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="absolute top-2 right-12 p-2 bg-blue-500/80 backdrop-blur-sm rounded-lg text-white hover:bg-blue-600/80 transition-all duration-300"
+                        >
+                          <span className="text-sm">✏️</span>
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-white text-lg">{product.name}</h3>
+                        <p className="text-purple-300 text-sm">{product.category}</p>
+                        <p className="text-white/70 text-sm line-clamp-2">{product.description}</p>
+                        <div className="flex items-center justify-between pt-2">
+                          <div className="flex flex-col">
+                            <span className="text-xl font-bold gradient-text">₹{product.price}</span>
+                            {product.discount > 0 && (
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
+                                <span className="text-xs text-green-400 font-semibold">{product.discount}% OFF</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            {[...Array(5)].map((_, i) => (
+                              <FaStar key={i} className="text-yellow-400 text-sm" />
+                            ))}
                           </div>
                         </div>
+                        <div className="flex space-x-2 pt-2">
+                          <button
+                            onClick={() => handleEdit(product)}
+                            className="flex-1 px-3 py-2 bg-blue-500/80 backdrop-blur-sm rounded-lg text-white text-sm hover:bg-blue-600/80 transition-all duration-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product._id)}
+                            disabled={deletingId === product._id}
+                            className="flex-1 px-3 py-2 bg-red-500/80 backdrop-blur-sm rounded-lg text-white text-sm hover:bg-red-600/80 transition-all duration-300 disabled:opacity-50"
+                          >
+                            {deletingId === product._id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {product.category}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{product.price}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(product.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-12 text-center">
+                  <div className="text-6xl mb-4">📦</div>
+                  <p className="text-xl text-white/80">No products yet</p>
+                  <p className="text-white/60 mt-2">Add your first magical product!</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </ProtectedRoute>
   );

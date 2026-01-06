@@ -17,13 +17,39 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userSearch, setUserSearch] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+  const [productCategory, setProductCategory] = useState("");
+  const [userPage, setUserPage] = useState(1);
+  const [productPage, setProductPage] = useState(1);
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+                         user.email.toLowerCase().includes(userSearch.toLowerCase());
+    const matchesRole = !userRole || user.role === userRole;
+    return matchesSearch && matchesRole;
+  });
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(productSearch.toLowerCase());
+    const matchesCategory = !productCategory || product.category === productCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const usersPerPage = 10;
+  const productsPerPage = 10;
+  const paginatedUsers = filteredUsers.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
+  const paginatedProducts = filteredProducts.slice((productPage - 1) * productsPerPage, productPage * productsPerPage);
+  const userPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const productPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   const fetchData = async () => {
     try {
       const [statsRes, usersRes, productsRes] = await Promise.all([
-        axios.get(`${process.env.NEXT_API_URL}/api/admin/dashboard`),
-        axios.get(`${process.env.NEXT_API_URL}/api/admin/users`),
-        axios.get(`${process.env.NEXT_API_URL}/api/admin/products`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/products`),
       ]);
       setStats(statsRes.data);
       setUsers(usersRes.data);
@@ -44,10 +70,10 @@ export default function AdminDashboard() {
 
     try {
       await axios.delete(
-        `${process.env.NEXT_API_URL}/api/admin/users/${userId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${userId}`
       );
       setUsers(users.filter((user) => user._id !== userId));
-      fetchData(); // Refresh stats
+      fetchData();
     } catch (err) {
       alert("Error deleting user: " + err.response?.data?.error);
     }
@@ -97,7 +123,28 @@ export default function AdminDashboard() {
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b">
-            <h2 className="text-xl font-semibold">User Management</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">User Management</h2>
+              <div className="flex gap-4">
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  className="border p-2 rounded"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                />
+                <select
+                  className="border p-2 rounded"
+                  value={userRole}
+                  onChange={(e) => setUserRole(e.target.value)}
+                >
+                  <option value="">All Roles</option>
+                  <option value="user">User</option>
+                  <option value="seller">Seller</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -121,7 +168,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {users.map((user) => (
+                {paginatedUsers.map((user) => (
                   <tr key={user._id}>
                     <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -156,14 +203,53 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {userPages > 1 && (
+            <div className="px-6 py-4 flex justify-center space-x-2">
+              <button
+                onClick={() => setUserPage(prev => Math.max(prev - 1, 1))}
+                disabled={userPage === 1}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="px-3 py-1">Page {userPage} of {userPages}</span>
+              <button
+                onClick={() => setUserPage(prev => Math.min(prev + 1, userPages))}
+                disabled={userPage === userPages}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Products Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b">
-            <h2 className="text-xl font-semibold">
-              All Products ({products.length})
-            </h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">
+                All Products ({filteredProducts.length})
+              </h2>
+              <div className="flex gap-4">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="border p-2 rounded"
+                  value={productSearch}
+                  onChange={(e) => setProductSearch(e.target.value)}
+                />
+                <select
+                  className="border p-2 rounded"
+                  value={productCategory}
+                  onChange={(e) => setProductCategory(e.target.value)}
+                >
+                  <option value="">All Categories</option>
+                  <option value="Innerwear">Innerwear</option>
+                  <option value="Clothing">Clothing</option>
+                </select>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -187,7 +273,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {products.map((product) => (
+                {paginatedProducts.map((product) => (
                   <tr key={product._id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -220,6 +306,25 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {productPages > 1 && (
+            <div className="px-6 py-4 flex justify-center space-x-2">
+              <button
+                onClick={() => setProductPage(prev => Math.max(prev - 1, 1))}
+                disabled={productPage === 1}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="px-3 py-1">Page {productPage} of {productPages}</span>
+              <button
+                onClick={() => setProductPage(prev => Math.min(prev + 1, productPages))}
+                disabled={productPage === productPages}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </ProtectedRoute>

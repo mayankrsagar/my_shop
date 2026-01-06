@@ -1,5 +1,5 @@
-import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
+import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ["user", "admin", "seller"], default: "user" },
     avatar: { type: String, default: "" },
     avatarPublicId: { type: String, default: "" },
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
   {
     timestamps: true,

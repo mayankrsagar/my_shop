@@ -8,6 +8,8 @@ import {
 } from 'react';
 
 import axios from 'axios';
+import { FaSearch, FaFilter, FaSort, FaMagic } from 'react-icons/fa';
+import { HiSparkles } from 'react-icons/hi';
 
 import ProductCard from '@/components/ProductCard';
 
@@ -29,24 +31,66 @@ function useDebounce(value, delay) {
 }
 
 const FilterControls = memo(
-  ({ onSearchChange, onFilterChange, onSortChange }) => (
-    <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-lg shadow-sm">
-      <input
-        type="text"
-        placeholder="Search products..."
-        className="border p-2 rounded flex-grow"
-        onChange={onSearchChange}
-      />
-      <select className="border p-2 rounded" onChange={onFilterChange}>
-        <option value="">All Categories</option>
-        <option value="Innerwear">Innerwear</option>
-        <option value="Clothing">Clothing</option>
-      </select>
-      <select className="border p-2 rounded" onChange={onSortChange}>
-        <option value="">Sort By</option>
-        <option value="price_asc">Price: Low to High</option>
-        <option value="price_desc">Price: High to Low</option>
-      </select>
+  ({ onSearchChange, onFilterChange, onSortChange, categories }) => (
+    <div className="glass rounded-2xl p-6 space-y-4 border border-white/20">
+      {/* Header */}
+      <div className="flex items-center space-x-2 mb-4">
+        <FaMagic className="text-purple-400" />
+        <h2 className="text-lg font-semibold text-white">Find Your Perfect Product</h2>
+        <HiSparkles className="text-yellow-400" />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Search */}
+        <div className="relative group">
+          <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+          <input
+            type="text"
+            placeholder="Search magical products..."
+            className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+            onChange={onSearchChange}
+          />
+        </div>
+        
+        {/* Category Filter */}
+        <div className="relative group">
+          <FaFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+          <select 
+            className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 appearance-none cursor-pointer"
+            onChange={onFilterChange}
+          >
+            <option value="" className="bg-gray-800 text-white">All Categories</option>
+            {categories.map((category) => (
+              <option key={category} value={category} className="bg-gray-800 text-white">
+                {category}
+              </option>
+            ))}
+          </select>
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        
+        {/* Sort */}
+        <div className="relative group">
+          <FaSort className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+          <select 
+            className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 appearance-none cursor-pointer"
+            onChange={onSortChange}
+          >
+            <option value="" className="bg-gray-800 text-white">Sort By</option>
+            <option value="price_asc" className="bg-gray-800 text-white">Price: Low to High</option>
+            <option value="price_desc" className="bg-gray-800 text-white">Price: High to Low</option>
+          </select>
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
     </div>
   )
 );
@@ -54,7 +98,7 @@ const FilterControls = memo(
 FilterControls.displayName = "FilterControls";
 
 const ProductGrid = memo(({ products }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
     {products.map((prod) => (
       <ProductCard key={prod._id} product={prod} />
     ))}
@@ -63,13 +107,54 @@ const ProductGrid = memo(({ products }) => (
 
 ProductGrid.displayName = "ProductGrid";
 
+const LoadingSpinner = () => (
+  <div className="flex flex-col items-center justify-center py-16 space-y-4">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
+      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-pink-600 rounded-full animate-spin animation-delay-150"></div>
+    </div>
+    <p className="text-white/80 font-medium">Loading magical products...</p>
+  </div>
+);
+
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [filter, setFilter] = useState("");
   const [sort, setSort] = useState("");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
+  const [categories, setCategories] = useState([]);
+  const [donationStats, setDonationStats] = useState({ totalAmount: 0, totalCount: 0, recentDonations: [] });
 
   const debouncedSearch = useDebounce(search, 300);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/categories`
+        );
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+    
+    const fetchDonationStats = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/payment/donation-stats`
+        );
+        setDonationStats(res.data);
+      } catch (err) {
+        console.error("Error fetching donation stats:", err);
+      }
+    };
+    
+    fetchCategories();
+    fetchDonationStats();
+  }, []);
 
   const handleSearchChange = useCallback((e) => {
     setSearch(e.target.value);
@@ -77,46 +162,158 @@ export default function Home() {
 
   const handleFilterChange = useCallback((e) => {
     setFilter(e.target.value);
+    setPagination((prev) => ({ ...prev, page: 1 }));
   }, []);
 
   const handleSortChange = useCallback((e) => {
     setSort(e.target.value);
+    setPagination((prev) => ({ ...prev, page: 1 }));
   }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true);
       try {
-        const params = {};
+        const params = { page: pagination.page };
         if (filter) params.category = filter;
         if (sort) params.sort = sort;
         if (debouncedSearch) params.search = debouncedSearch;
 
         const res = await axios.get(
-          `${process.env.NEXT_API_URL}/api/products`,
-          {
-            params,
-          }
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products`,
+          { params }
         );
-        setProducts(res.data);
+        setProducts(res.data.products);
+        setPagination(res.data.pagination);
+        // Refresh categories when products change
+        const categoriesRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/categories`
+        );
+        setCategories(categoriesRes.data);
       } catch (err) {
         console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
-  }, [filter, sort, debouncedSearch]);
+  }, [filter, sort, debouncedSearch, pagination.page]);
 
   const memoizedProducts = useMemo(() => products, [products]);
 
   return (
-    <div className="space-y-6">
-      <FilterControls
-        onSearchChange={handleSearchChange}
-        onFilterChange={handleFilterChange}
-        onSortChange={handleSortChange}
-      />
-      <ProductGrid products={memoizedProducts} />
-      {products.length === 0 && (
-        <p className="text-center text-gray-500">No products found.</p>
+    <div className="min-h-screen space-y-8">
+      {/* Hero Section */}
+      <div className="text-center py-8 sm:py-12 space-y-4 sm:space-y-6 px-4">
+        <div className="flex items-center justify-center space-x-2 sm:space-x-3">
+          <HiSparkles className="text-3xl sm:text-4xl text-yellow-400 float" />
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">
+            ✨ Make Magic Happen ✨
+          </h1>
+          <HiSparkles className="text-3xl sm:text-4xl text-yellow-400 float" style={{animationDelay: '1s'}} />
+        </div>
+        <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md px-4">
+          Join our incredible community of supporters and help us build the future of e-commerce! 🚀
+        </p>
+        
+        {/* Community Impact Section */}
+        <div className="glass rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto mt-8 sm:mt-12 border border-white/20 mx-4">
+          <div className="flex items-center justify-center space-x-2 mb-4 sm:mb-6">
+            <span className="text-xl sm:text-2xl">🌟</span>
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Community Impact</h2>
+            <span className="text-xl sm:text-2xl">🌟</span>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+            <div className="text-center space-y-2">
+              <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md">₹{donationStats.totalAmount.toLocaleString()}</div>
+              <div className="text-white/80 text-sm sm:text-base">💰 Total Raised</div>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md">{donationStats.totalCount}</div>
+              <div className="text-white/80 text-sm sm:text-base">🦸 Amazing Heroes</div>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md">
+                {donationStats.recentDonations.length > 0 ? donationStats.recentDonations[0].donorName : 'None yet'}
+              </div>
+              <div className="text-white/80 text-sm sm:text-base">❤️ Recent Hero</div>
+            </div>
+          </div>
+          
+          <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-white/10 rounded-xl border border-white/10">
+            <div className="flex items-center space-x-3 mb-3">
+              <span className="text-base sm:text-lg">🎯</span>
+              <span className="text-white font-semibold text-sm sm:text-base">
+                {donationStats.recentDonations.length > 0 
+                  ? `${donationStats.recentDonations[0].donorName} donated ₹${donationStats.recentDonations[0].amount}`
+                  : 'Be the first to donate!'}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-white/70">
+              <span>🎯 Goal: ₹50,000</span>
+              <span>•</span>
+              <span>{((donationStats.totalAmount / 50000) * 100).toFixed(1)}% Complete!</span>
+              <span className="text-orange-400">🔥</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Controls */}
+      <div className="px-4">
+        <FilterControls
+          onSearchChange={handleSearchChange}
+          onFilterChange={handleFilterChange}
+          onSortChange={handleSortChange}
+          categories={categories}
+        />
+      </div>
+      
+      {/* Products Section */}
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <ProductGrid products={memoizedProducts} />
+      )}
+      
+      {!loading && products.length === 0 && (
+        <div className="text-center py-16 space-y-4">
+          <div className="text-6xl mb-4">🔍</div>
+          <p className="text-xl text-white/80">No magical products found.</p>
+          <p className="text-white/60">Try adjusting your search or filters!</p>
+        </div>
+      )}
+      
+      {/* Pagination */}
+      {pagination.pages > 1 && (
+        <div className="flex justify-center items-center space-x-4 py-8">
+          <button
+            onClick={() =>
+              setPagination((prev) => ({ ...prev, page: prev.page - 1 }))
+            }
+            disabled={pagination.page === 1}
+            className="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white font-medium hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+          >
+            Previous
+          </button>
+          <div className="flex items-center space-x-2">
+            <span className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold">
+              {pagination.page}
+            </span>
+            <span className="text-white/60">of</span>
+            <span className="text-white/80 font-medium">{pagination.pages}</span>
+          </div>
+          <button
+            onClick={() =>
+              setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+            }
+            disabled={pagination.page === pagination.pages}
+            className="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white font-medium hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
   );

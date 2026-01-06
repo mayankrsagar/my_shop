@@ -7,7 +7,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script 
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          onLoad={() => console.log('Razorpay loaded')}
+          onError={() => console.log('Razorpay failed to load')}
+        ></script>
       </head>
       <body className="bg-gray-50 text-gray-900">
         <Providers>

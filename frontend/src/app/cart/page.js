@@ -1,10 +1,19 @@
 "use client";
-import { memo, useCallback, useMemo, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 
-import { FaMinus, FaPlus, FaTrash } from "react-icons/fa";
+import {
+  FaMinus,
+  FaPlus,
+  FaTrash,
+} from 'react-icons/fa';
 
-import { useCart } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 
 const CartItem = memo(({ item, onQuantityChange, onRemove }) => {
   const productId = item.productId?._id || item.productId || item._id;
@@ -57,8 +66,15 @@ const CartItem = memo(({ item, onQuantityChange, onRemove }) => {
 CartItem.displayName = "CartItem";
 
 export default function CartPage() {
-  const { cart, subTotal, gst, total, updateCartItem, removeFromCart, clearCart } =
-    useCart();
+  const {
+    cart,
+    subTotal,
+    gst,
+    total,
+    updateCartItem,
+    removeFromCart,
+    clearCart,
+  } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -77,7 +93,7 @@ export default function CartPage() {
       const { orderId, amount, currency } = await response.json();
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: process.env.NEXT_RAZORPAY_KEY_ID,
         amount: amount * 100,
         currency,
         name: "My Shop",
@@ -95,7 +111,7 @@ export default function CartPage() {
                 razorpay_signature: response.razorpay_signature,
               }),
             });
-            
+
             if (verifyResponse.ok) {
               alert("Payment successful!");
               clearCart();

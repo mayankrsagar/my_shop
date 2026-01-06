@@ -23,9 +23,7 @@ export const CartProvider = ({ children }) => {
         return;
       }
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/cart`
-        );
+        const res = await axios.get(`${process.env.NEXT_API_URL}/api/cart`);
         setCart(res.data);
       } catch (err) {
         console.error("Error loading cart:", err);
@@ -42,15 +40,12 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/cart/add`,
-        {
-          productId: product._id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-        }
-      );
+      const res = await axios.post(`${process.env.NEXT_API_URL}/api/cart/add`, {
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      });
       setCart(res.data);
     } catch (err) {
       console.error("Error adding to cart:", err);
@@ -62,7 +57,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/cart/item/${productId}`,
+        `${process.env.NEXT_API_URL}/api/cart/item/${productId}`,
         {
           qty,
         }
@@ -78,7 +73,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/cart/item/${productId}`
+        `${process.env.NEXT_API_URL}/api/cart/item/${productId}`
       );
       setCart(res.data);
     } catch (err) {

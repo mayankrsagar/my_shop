@@ -1,7 +1,15 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo, memo } from "react";
-import axios from "axios";
-import ProductCard from "@/components/ProductCard";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+
+import axios from 'axios';
+
+import ProductCard from '@/components/ProductCard';
 
 // Custom debounce hook
 function useDebounce(value, delay) {
@@ -20,28 +28,30 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-const FilterControls = memo(({ onSearchChange, onFilterChange, onSortChange }) => (
-  <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-lg shadow-sm">
-    <input
-      type="text"
-      placeholder="Search products..."
-      className="border p-2 rounded flex-grow"
-      onChange={onSearchChange}
-    />
-    <select className="border p-2 rounded" onChange={onFilterChange}>
-      <option value="">All Categories</option>
-      <option value="Innerwear">Innerwear</option>
-      <option value="Clothing">Clothing</option>
-    </select>
-    <select className="border p-2 rounded" onChange={onSortChange}>
-      <option value="">Sort By</option>
-      <option value="price_asc">Price: Low to High</option>
-      <option value="price_desc">Price: High to Low</option>
-    </select>
-  </div>
-));
+const FilterControls = memo(
+  ({ onSearchChange, onFilterChange, onSortChange }) => (
+    <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-lg shadow-sm">
+      <input
+        type="text"
+        placeholder="Search products..."
+        className="border p-2 rounded flex-grow"
+        onChange={onSearchChange}
+      />
+      <select className="border p-2 rounded" onChange={onFilterChange}>
+        <option value="">All Categories</option>
+        <option value="Innerwear">Innerwear</option>
+        <option value="Clothing">Clothing</option>
+      </select>
+      <select className="border p-2 rounded" onChange={onSortChange}>
+        <option value="">Sort By</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+      </select>
+    </div>
+  )
+);
 
-FilterControls.displayName = 'FilterControls';
+FilterControls.displayName = "FilterControls";
 
 const ProductGrid = memo(({ products }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -51,7 +61,7 @@ const ProductGrid = memo(({ products }) => (
   </div>
 ));
 
-ProductGrid.displayName = 'ProductGrid';
+ProductGrid.displayName = "ProductGrid";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -81,9 +91,12 @@ export default function Home() {
         if (sort) params.sort = sort;
         if (debouncedSearch) params.search = debouncedSearch;
 
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
-          params,
-        });
+        const res = await axios.get(
+          `${process.env.NEXT_API_URL}/api/products`,
+          {
+            params,
+          }
+        );
         setProducts(res.data);
       } catch (err) {
         console.error("Error fetching products:", err);

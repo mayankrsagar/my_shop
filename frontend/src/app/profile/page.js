@@ -1,10 +1,18 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { FaCamera, FaTrash } from "react-icons/fa";
-import ProtectedRoute from "../../components/ProtectedRoute";
+import {
+  useEffect,
+  useState,
+} from 'react';
+
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import {
+  FaCamera,
+  FaTrash,
+} from 'react-icons/fa';
+
+import ProtectedRoute from '../../components/ProtectedRoute';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ProfilePage() {
   const { user, checkAuth } = useAuth();
@@ -30,7 +38,7 @@ export default function ProfilePage() {
     setErrors({});
 
     try {
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/update`, {
+      await axios.put(`${process.env.NEXT_API_URL}/api/profile/update`, {
         name,
         email,
       });
@@ -39,7 +47,7 @@ export default function ProfilePage() {
     } catch (err) {
       if (err.response?.data?.details) {
         const validationErrors = {};
-        err.response.data.details.forEach(detail => {
+        err.response.data.details.forEach((detail) => {
           validationErrors[detail.path] = detail.msg;
         });
         setErrors(validationErrors);
@@ -60,9 +68,13 @@ export default function ProfilePage() {
 
     setUploading(true);
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+        `${process.env.NEXT_API_URL}/api/profile/avatar`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       setAvatar(res.data.avatar);
       await checkAuth(); // Refresh user data
     } catch (err) {
@@ -76,7 +88,7 @@ export default function ProfilePage() {
     if (!confirm("Are you sure you want to delete your avatar?")) return;
 
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/avatar`);
+      await axios.delete(`${process.env.NEXT_API_URL}/api/profile/avatar`);
       setAvatar("");
       await checkAuth(); // Refresh user data
     } catch (err) {
@@ -87,16 +99,24 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h1 className="text-3xl font-bold mb-8 text-center">Profile Settings</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center">
+          Profile Settings
+        </h1>
 
         {/* Avatar Section */}
         <div className="flex flex-col items-center mb-8">
           <div className="relative">
             <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
               {avatar ? (
-                <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                <img
+                  src={avatar}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <span className="text-4xl text-gray-400">{user?.name?.charAt(0).toUpperCase()}</span>
+                <span className="text-4xl text-gray-400">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </span>
               )}
             </div>
             <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700">
@@ -110,7 +130,9 @@ export default function ProfilePage() {
               />
             </label>
           </div>
-          {uploading && <p className="text-sm text-gray-500 mt-2">Uploading...</p>}
+          {uploading && (
+            <p className="text-sm text-gray-500 mt-2">Uploading...</p>
+          )}
           {avatar && (
             <button
               onClick={handleDeleteAvatar}
@@ -130,7 +152,9 @@ export default function ProfilePage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Name
+            </label>
             <input
               type="text"
               required
@@ -140,11 +164,15 @@ export default function ProfilePage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
             <input
               type="email"
               required
@@ -154,11 +182,15 @@ export default function ProfilePage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Role
+            </label>
             <input
               type="text"
               value={user?.role || ""}

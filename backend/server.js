@@ -1,24 +1,36 @@
-import "dotenv/config";
+import 'dotenv/config';
 
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import express from "express";
-import helmet from "helmet";
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import helmet from 'helmet';
 
-import connectDB from "./config/database.js";
-import adminRoutes from "./routes/adminRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
-import cartRoutes from "./routes/cartRoutes.js";
-import paymentRoutes from "./routes/payment.js";
-import productRoutes from "./routes/productRoutes.js";
-import profileRoutes from "./routes/profileRoutes.js";
-import sellerRoutes from "./routes/sellerRoutes.js";
+import connectDB from './config/database.js';
+import adminRoutes from './routes/adminRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
+import paymentRoutes from './routes/payment.js';
+import productRoutes from './routes/productRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+import sellerRoutes from './routes/sellerRoutes.js';
 
 const app = express();
 
 // Security and Parsers
 app.use(helmet());
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+
+dotenv.config();
+
+const allowedOrigins = process.env.FRONTEND_URL.split(",");
+
+app.use(
+  cors({
+    credentials: true,
+    origin: allowedOrigins,
+  })
+);
+
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 

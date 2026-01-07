@@ -4,29 +4,25 @@
 :root {
   --background: linear-gradient(135deg, #f5f7fb 0%, #eef2ff 100%);
   --foreground: #111827;
-
   --card-bg: rgba(255, 255, 255, 0.92);
   --glass-bg: rgba(255, 255, 255, 0.6);
-
   --text-primary: #111827;
-  --text-secondary: #4b5563;
-
+  --text-secondary: #4b5563; /* Medium gray for light mode */
   --border-color: rgba(0, 0, 0, 0.08);
 }
 
 /* DARK MODE */
 .dark {
   --background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
-  --foreground: #e5e7eb;
-
+  --foreground: #f3f4f6;
   --card-bg: rgba(15, 23, 42, 0.95);
   --glass-bg: rgba(30, 41, 59, 0.7);
-
-  --text-primary: #f9fafb;
-  --text-secondary: #cbd5f5;
-
+  --text-primary: #ffffff; /* Pure white for dark mode headings */
+  --text-secondary: #94a3b8; /* Lighter slate for dark mode subtext */
   --border-color: rgba(255, 255, 255, 0.12);
 }
+
+/* Rest of your existing CSS remains the same... */
 
 body {
   background: var(--background);

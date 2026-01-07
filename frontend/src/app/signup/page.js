@@ -1,3 +1,4 @@
+// Signup Page - Fixed for Dark & Light Mode
 "use client";
 import {
   useEffect,
@@ -75,10 +76,13 @@ export default function SignupPage() {
 
     try {
       await signup(name.trim(), email, password, role);
-      toast.success('Account created successfully!');
+      toast.success("Account created successfully!");
       router.push("/");
     } catch (err) {
-      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Signup failed";
+      const errorMessage =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Signup failed";
       toast.error(errorMessage);
       if (err.response?.data?.details) {
         const validationErrors = {};
@@ -97,8 +101,10 @@ export default function SignupPage() {
   if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="glass rounded-2xl p-8 border border-white/20">
-          <p className="text-white text-center">Redirecting...</p>
+        <div className="glass rounded-2xl p-8 border shadow-lg">
+          <p className="text-center" style={{ color: "var(--text-primary)" }}>
+            Redirecting...
+          </p>
         </div>
       </div>
     );
@@ -107,101 +113,156 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
-        <div className="glass rounded-2xl p-8 border border-white/20">
+        <div className="glass rounded-2xl p-8 border shadow-xl backdrop-blur-md">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">
+            <h2
+              className="text-3xl font-bold mb-2"
+              style={{ color: "var(--text-primary)" }}
+            >
               Join BuyBloom
             </h2>
-            <p className="text-white/70">Create your account</p>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              Create your account
+            </p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.general && (
-              <div className="bg-red-500/20 border border-red-400/30 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm">
+              <div className="bg-red-500/20 border border-red-400/30 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm">
                 {errors.general}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Full Name
               </label>
               <input
                 type="text"
                 required
-                className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
-                  errors.name ? "border-red-400/50" : "border-white/20"
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.name ? "border-red-400/50" : ""
+                } placeholder-[var(--text-secondary)] placeholder-opacity-60`}
+                style={{
+                  background: "var(--glass-bg)",
+                  color: "var(--text-primary)",
+                  borderColor: errors.name ? undefined : "var(--border-color)",
+                }}
                 placeholder="Enter your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
               {errors.name && (
-                <p className="mt-2 text-sm text-red-300">{errors.name}</p>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-300">
+                  {errors.name}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Email Address
               </label>
               <input
                 type="email"
                 required
-                className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
-                  errors.email ? "border-red-400/50" : "border-white/20"
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.email ? "border-red-400/50" : ""
+                } placeholder-[var(--text-secondary)] placeholder-opacity-60`}
+                style={{
+                  background: "var(--glass-bg)",
+                  color: "var(--text-primary)",
+                  borderColor: errors.email ? undefined : "var(--border-color)",
+                }}
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               {errors.email && (
-                <p className="mt-2 text-sm text-red-300">{errors.email}</p>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-300">
+                  {errors.email}
+                </p>
               )}
             </div>
 
             <div className="relative">
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Password
               </label>
               <input
                 type={showPassword ? "text" : "password"}
                 required
-                className={`w-full px-4 py-3 pr-12 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
-                  errors.password ? "border-red-400/50" : "border-white/20"
-                }`}
+                className={`w-full px-4 py-3 pr-12 border rounded-lg backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.password ? "border-red-400/50" : ""
+                } placeholder-[var(--text-secondary)] placeholder-opacity-60`}
+                style={{
+                  background: "var(--glass-bg)",
+                  color: "var(--text-primary)",
+                  borderColor: errors.password
+                    ? undefined
+                    : "var(--border-color)",
+                }}
                 placeholder="Create a strong password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
-                className="absolute right-3 top-11 text-white/60 hover:text-white transition-colors"
+                className="absolute right-3 top-11 transition-colors"
+                style={{ color: "var(--text-secondary)" }}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
               </button>
               {errors.password && (
-                <p className="mt-2 text-sm text-red-300">{errors.password}</p>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-300">
+                  {errors.password}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Account Type
               </label>
               <select
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                className="w-full px-4 py-3 border rounded-lg backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                style={{
+                  background: "var(--glass-bg)",
+                  color: "var(--text-primary)",
+                  borderColor: "var(--border-color)",
+                }}
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <option value="user" className="bg-gray-800 text-white">
+                <option
+                  value="user"
+                  className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
+                >
                   Customer
                 </option>
-                <option value="seller" className="bg-gray-800 text-white">
+                <option
+                  value="seller"
+                  className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
+                >
                   Seller
                 </option>
-                <option value="admin" className="bg-gray-800 text-white">
+                <option
+                  value="admin"
+                  className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
+                >
                   Admin
                 </option>
               </select>
@@ -210,17 +271,17 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-primary py-3 text-lg font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? "Creating account..." : "Create Account"}
             </button>
 
             <div className="text-center pt-4">
-              <p className="text-white/70">
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="text-purple-300 hover:text-purple-200 font-medium transition-colors"
+                  className="text-purple-700 dark:text-purple-300 hover:text-purple-900 dark:hover:text-purple-200 font-medium transition-colors underline decoration-purple-300/50"
                 >
                   Sign in
                 </Link>

@@ -1,8 +1,12 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link";
-import axios from "axios";
-import { FaArrowLeft, FaEnvelope } from "react-icons/fa";
+import { useState } from 'react';
+
+import axios from 'axios';
+import Link from 'next/link';
+import {
+  FaArrowLeft,
+  FaEnvelope,
+} from 'react-icons/fa';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -39,7 +43,7 @@ export default function ForgotPasswordPage() {
               Forgot Password?
             </h2>
             <p className="text-white/70">
-              Enter your email and we'll send you a reset link
+              {`Enter your email and we'll send you a reset link`}
             </p>
           </div>
 

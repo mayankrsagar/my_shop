@@ -290,7 +290,7 @@ export default function DeveloperPage() {
 
         {/* Contact CTA */}
         <div className="text-center glass rounded-2xl p-8 border border-white/20">
-          <h3 className="text-2xl font-bold text-white mb-4">Let's Connect!</h3>
+          <h3 className="text-2xl font-bold text-white mb-4">{`Let's Connect!`}</h3>
           <p className="text-white/80 mb-6">
             Interested in discussing opportunities or learning more about this
             project?

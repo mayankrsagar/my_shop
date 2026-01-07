@@ -6,6 +6,9 @@ import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 import { FaHeart, FaStar, FaShoppingCart, FaEdit } from "react-icons/fa";
 import RatingModal from "../../../components/RatingModal";
+import StructuredData from "../../../components/StructuredData";
+import Breadcrumbs from "../../../components/Breadcrumbs";
+import { generateProductStructuredData } from "../../../lib/seo";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -148,9 +151,19 @@ export default function ProductDetailPage() {
 
   const canEdit = user && product.sellerId._id === user.id;
 
+  const breadcrumbItems = [
+    { name: product.category, href: `/?category=${encodeURIComponent(product.category)}` },
+    { name: product.name }
+  ];
+
+  const productStructuredData = generateProductStructuredData(product);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <StructuredData data={productStructuredData} />
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumbs items={breadcrumbItems} />
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
             {/* Product Image */}
@@ -376,18 +389,18 @@ export default function ProductDetailPage() {
             </div>
           )}
         </div>
-      </div>
 
-      <RatingModal
-        product={product}
-        isOpen={showRatingModal}
-        onClose={() => setShowRatingModal(false)}
-        onRatingSubmitted={() => {
-          fetchProduct();
-          fetchReviews();
-          setShowRatingModal(false);
-        }}
-      />
-    </div>
+        <RatingModal
+          product={product}
+          isOpen={showRatingModal}
+          onClose={() => setShowRatingModal(false)}
+          onRatingSubmitted={() => {
+            fetchProduct();
+            fetchReviews();
+            setShowRatingModal(false);
+          }}
+        />
+      </div>
+    </>
   );
 }

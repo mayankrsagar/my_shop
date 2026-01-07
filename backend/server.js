@@ -17,6 +17,7 @@ import profileRoutes from './routes/profileRoutes.js';
 import sellerRoutes from './routes/sellerRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
 import favoritesRoutes from './routes/favoritesRoutes.js';
+import passwordResetRoutes from './routes/passwordResetRoutes.js';
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api", categoryRoutes);
 app.use("/api/ratings", ratingRoutes);
 app.use("/api", favoritesRoutes);
+app.use("/api/password", passwordResetRoutes);
 
 // --- GLOBAL ERROR HANDLER ---
 // This must be the LAST middleware added to the app

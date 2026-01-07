@@ -85,101 +85,130 @@ export default function SignupPage() {
   };
 
   if (user) {
-    return <div className="text-center py-10">Redirecting...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass rounded-2xl p-8 border border-white/20">
+          <p className="text-white text-center">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {errors.general && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {errors.general}
+    <div className="min-h-screen flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        <div className="glass rounded-2xl p-8 border border-white/20">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Join ShopVibe
+            </h2>
+            <p className="text-white/70">Create your account</p>
+          </div>
+          
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {errors.general && (
+              <div className="bg-red-500/20 border border-red-400/30 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm">
+                {errors.general}
+              </div>
+            )}
+            
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                required
+                className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.name ? "border-red-400/50" : "border-white/20"
+                }`}
+                placeholder="Enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              {errors.name && (
+                <p className="mt-2 text-sm text-red-300">{errors.name}</p>
+              )}
             </div>
-          )}
-          <div>
-            <input
-              type="text"
-              required
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-            )}
-          </div>
-          <div>
-            <input
-              type="email"
-              required
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-            )}
-          </div>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              className={`w-full px-3 py-2 pr-10 border rounded-md ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-            )}
-          </div>
-          <div>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <option value="user">Customer</option>
-              <option value="seller">Seller</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <div>
+            
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.email ? "border-red-400/50" : "border-white/20"
+                }`}
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-300">{errors.email}</p>
+              )}
+            </div>
+            
+            <div className="relative">
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Password
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                className={`w-full px-4 py-3 pr-12 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.password ? "border-red-400/50" : "border-white/20"
+                }`}
+                placeholder="Create a strong password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-11 text-white/60 hover:text-white transition-colors"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-300">{errors.password}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Account Type
+              </label>
+              <select
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="user" className="bg-gray-800 text-white">Customer</option>
+                <option value="seller" className="bg-gray-800 text-white">Seller</option>
+                <option value="admin" className="bg-gray-800 text-white">Admin</option>
+              </select>
+            </div>
+            
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating account..." : "Sign up"}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
-          </div>
-          <div className="text-center">
-            <Link href="/login" className="text-blue-600 hover:text-blue-500">
-              Already have an account? Sign in
-            </Link>
-          </div>
-        </form>
+            
+            <div className="text-center pt-4">
+              <p className="text-white/70">
+                Already have an account?{" "}
+                <Link href="/login" className="text-purple-300 hover:text-purple-200 font-medium transition-colors">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

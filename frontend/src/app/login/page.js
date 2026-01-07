@@ -64,75 +64,99 @@ export default function LoginPage() {
   };
 
   if (user) {
-    return <div className="text-center py-10">Redirecting...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass rounded-2xl p-8 border border-white/20">
+          <p className="text-white text-center">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {errors.general && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {errors.general}
+    <div className="min-h-screen flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        <div className="glass rounded-2xl p-8 border border-white/20">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Welcome Back
+            </h2>
+            <p className="text-white/70">Sign in to your account</p>
+          </div>
+          
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {errors.general && (
+              <div className="bg-red-500/20 border border-red-400/30 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm">
+                {errors.general}
+              </div>
+            )}
+            
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.email ? "border-red-400/50" : "border-white/20"
+                }`}
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-300">{errors.email}</p>
+              )}
             </div>
-          )}
-          <div>
-            <input
-              type="email"
-              required
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-            )}
-          </div>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              className={`w-full px-3 py-2 pr-10 border rounded-md ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-            )}
-          </div>
-          <div>
+            
+            <div className="relative">
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Password
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                className={`w-full px-4 py-3 pr-12 bg-white/10 border rounded-lg text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all ${
+                  errors.password ? "border-red-400/50" : "border-white/20"
+                }`}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-11 text-white/60 hover:text-white transition-colors"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-300">{errors.password}</p>
+              )}
+            </div>
+            
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
-          </div>
-          <div className="text-center">
-            <Link href="/signup" className="text-blue-600 hover:text-blue-500">
-              Don't have an account? Sign up
-            </Link>
-          </div>
-        </form>
+            
+            <div className="text-center pt-4">
+              <p className="text-white/70 mb-2">
+                Don't have an account?{" "}
+                <Link href="/signup" className="text-purple-300 hover:text-purple-200 font-medium transition-colors">
+                  Sign up
+                </Link>
+              </p>
+              <Link href="/forgot-password" className="text-purple-300 hover:text-purple-200 text-sm transition-colors">
+                Forgot your password?
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

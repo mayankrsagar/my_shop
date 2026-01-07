@@ -1,34 +1,40 @@
+// app/reset-password/ResetPasswordClient.jsx
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import axios from "axios";
-import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 
-export default function ResetPasswordPage() {
+import {
+  useEffect,
+  useState,
+} from 'react';
+
+import axios from 'axios';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  FaEye,
+  FaEyeSlash,
+  FaLock,
+} from 'react-icons/fa';
+
+export default function ResetPasswordClient({ token }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [token, setToken] = useState("");
-  
+
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const tokenParam = searchParams.get("token");
-    if (!tokenParam) {
+    // token must be present on client. If not, redirect to login.
+    if (!token) {
       router.push("/login");
-    } else {
-      setToken(tokenParam);
     }
-  }, [searchParams, router]);
+  }, [token, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (newPassword !== confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -45,7 +51,10 @@ export default function ResetPasswordPage() {
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/password/reset`,
-        { token, newPassword }
+        {
+          token,
+          newPassword,
+        }
       );
       setSuccess(true);
     } catch (err) {
@@ -67,10 +76,7 @@ export default function ResetPasswordPage() {
             <p className="text-white/70 mb-6">
               Your password has been updated successfully.
             </p>
-            <Link
-              href="/login"
-              className="btn-primary inline-block px-6 py-3"
-            >
+            <Link href="/login" className="btn-primary inline-block px-6 py-3">
               Sign In
             </Link>
           </div>
@@ -88,9 +94,7 @@ export default function ResetPasswordPage() {
             <h2 className="text-3xl font-bold text-white mb-2">
               Reset Password
             </h2>
-            <p className="text-white/70">
-              Enter your new password
-            </p>
+            <p className="text-white/70">Enter your new password</p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>

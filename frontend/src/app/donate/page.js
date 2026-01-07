@@ -1,539 +1,498 @@
 "use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { FocusTrap } from "focus-trap-react";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import {
-  useEffect,
-  useState,
-} from 'react';
+  FaBars,
+  FaGift,
+  FaHeart,
+  FaShoppingCart,
+  FaTimes,
+  FaUser,
+} from "react-icons/fa";
+import { HiSparkles } from "react-icons/hi";
 
-import toast from 'react-hot-toast';
+import ThemeToggle from "@/components/ThemeToggle";
+import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
-import DonationSuccessModal from '../../components/DonationSuccessModal';
-import { useAuth } from '../../context/AuthContext';
+/* Framer variants */
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.18 } },
+};
+const sheetVariants = {
+  hidden: { y: "100%", transition: { ease: "easeInOut", duration: 0.28 } },
+  visible: {
+    y: 0,
+    transition: { type: "spring", damping: 28, stiffness: 220 },
+  },
+};
+const listVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.045, delayChildren: 0.06 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { ease: "easeOut", duration: 0.22 },
+  },
+};
 
-/**
- * DonatePage:
- * - Chip + custom amount UX
- * - Confetti on successful donation (uses canvas-confetti via dynamic import)
- * - Theme-aware (uses your CSS vars)
- */
+export default function Navbar() {
+  const { cartCount } = useCart();
+  const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const panelRef = useRef(null);
+  const prevFocus = useRef(null);
+  const isMountedRef = useRef(true);
 
-export default function DonatePage() {
-  const { user } = useAuth();
-  const [amount, setAmount] = useState("");
-  const [donorName, setDonorName] = useState("");
-  const [donorEmail, setDonorEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [donatedAmount, setDonatedAmount] = useState("");
-  const [stats, setStats] = useState({
-    totalAmount: 0,
-    totalCount: 0,
-    recentDonations: [],
-  });
+  const lastToggleRef = useRef(0);
+  const OPEN_CLOSE_GUARD_MS = 500;
 
-  // UI state for chips
-  const chips = [50, 100, 250, 500, 1000, 5000];
-  const [selectedChip, setSelectedChip] = useState(null);
-
-  useEffect(() => {
-    fetchDonationStats();
-
-    const id = setInterval(fetchDonationStats, 60000);
-    return () => clearInterval(id);
+  const openSheet = useCallback((evt) => {
+    evt?.stopPropagation?.();
+    lastToggleRef.current = Date.now();
+    setOpen(true);
   }, []);
 
-  async function fetchDonationStats() {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/payment/donation-stats`
-      );
-      console.log("thisis inide the useEffect in dontaion page");
-      if (!res.ok) return;
-      const data = await res.json();
-      console.log("this is inside the fetchDonationStats");
-      console.log(data);
-      setStats({
-        totalAmount: Number(data.totalAmount || 0),
-        totalCount: Number(data.totalCount || 0),
-        recentDonations: Array.isArray(data.recentDonations)
-          ? data.recentDonations
-          : [],
-      });
-    } catch (err) {
-      console.error("Failed to fetch donation stats:", err);
-    }
-  }
+  const closeSheet = useCallback(() => {
+    lastToggleRef.current = Date.now();
+    setOpen(false);
+  }, []);
 
-  const formatCurrency = (value) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(value);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
-  const validateAmount = (value) => {
-    if (value === "" || value === null || value === undefined)
-      return "Please enter a donation amount";
-    const str = String(value).trim();
-    if (!str) return "Please enter a donation amount";
-    if (!/^\d+(\.\d{1,2})?$/.test(str))
-      return "Please enter a valid amount (up to 2 decimal places)";
-    const num = parseFloat(str);
-    if (isNaN(num)) return "Please enter a valid number";
-    if (num < 1) return "Minimum donation amount is ₹1";
-    if (num > 100000) return "Maximum donation amount is ₹1,00,000";
-    return "";
-  };
-
-  const handleAmountChange = (value) => {
-    // allow only numbers and dot; remove leading zeros except "0." case
-    let v = String(value).replace(/[^0-9.]/g, "");
-    // avoid multiple dots
-    const parts = v.split(".");
-    if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
-    // strip leading zeros
-    if (/^0\d+/.test(v)) v = String(Number(v));
-    setAmount(v);
-    setSelectedChip(null); // clear chip selection when user types custom
-    setError(validateAmount(v));
-  };
-
-  const handleChipSelect = (n) => {
-    setSelectedChip(n);
-    setAmount(String(n));
-    setError("");
-  };
-
-  // Confetti launcher (dynamic import). If canvas-confetti not installed, skip silently.
-  const launchConfetti = async () => {
-    try {
-      const confettiModule = await import("canvas-confetti");
-      const confetti = confettiModule.default || confettiModule;
-      // burst + spread
-      confetti({
-        particleCount: 160,
-        spread: 120,
-        origin: { y: 0.6 },
-        colors: ["#34D399", "#60A5FA", "#7C3AED", "#F472B6", "#F59E0B"],
-      });
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.4 },
-        colors: ["#34D399", "#60A5FA", "#7C3AED"],
-      });
-    } catch (err) {
-      // silently ignore if canvas-confetti not present
-      // console.warn('Confetti not available', err);
-    }
-  };
-
-  const handleDonate = async () => {
-    const vError = validateAmount(amount);
-    if (vError) {
-      setError(vError);
+  // body scroll lock + save/restore focus
+  useEffect(() => {
+    if (!open) {
+      try {
+        prevFocus.current?.focus?.();
+      } catch {}
       return;
     }
-    if (!user && !donorName.trim()) {
-      setError("Please enter your name when donating as guest");
-      return;
+    prevFocus.current = document.activeElement;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      if (!isMountedRef.current) return;
+      document.body.style.overflow = prevOverflow || "";
+      try {
+        prevFocus.current?.focus?.();
+      } catch {}
+    };
+  }, [open]);
+
+  // keyboard ESC closes sheet
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e) {
+      if (e.key === "Escape") closeSheet();
     }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, closeSheet]);
 
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/payment/donate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ amount: parseFloat(amount) }),
-        }
-      );
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.error || "Failed to create donation order");
-
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: Math.round(data.amount * 100),
-        currency: data.currency || "INR",
-        name: "BuyBloom Donations",
-        description: "Support our platform",
-        order_id: data.orderId,
-        handler: async (razorRes) => {
-          try {
-            const verifyPayload = {
-              razorpay_order_id: razorRes.razorpay_order_id,
-              razorpay_payment_id: razorRes.razorpay_payment_id,
-              razorpay_signature: razorRes.razorpay_signature,
-              amount: parseFloat(amount),
-            };
-            if (!user) {
-              verifyPayload.donorName = donorName;
-              verifyPayload.donorEmail = donorEmail;
-            } else {
-              verifyPayload.donorName = user.name;
-              verifyPayload.donorEmail = user.email;
-            }
-
-            const verifyRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/payment/verify-donation`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(verifyPayload),
-              }
-            );
-            const verifyData = await verifyRes.json();
-            if (!verifyRes.ok)
-              throw new Error(verifyData.error || "Verification failed");
-
-            // success: confetti + modal
-            setDonatedAmount(amount);
-            setShowSuccessModal(true);
-            await launchConfetti();
-            setAmount("");
-            setSelectedChip(null);
-            setDonorName("");
-            setDonorEmail("");
-            setError("");
-            fetchDonationStats();
-          } catch (err) {
-            console.error("Donation verification error:", err);
-            toast.error(err.message || "Verification failed");
-          }
-        },
-        prefill: {
-          name: user ? user.name : donorName,
-          email: user ? user.email : donorEmail,
-        },
-        theme: { color: "#10b981" },
-      };
-
-      if (!window.Razorpay) {
-        toast.error("Payment gateway not available. Try again later.");
-        setLoading(false);
-        return;
+  // Closes sheet on window resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && open) {
+        closeSheet();
       }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [open, closeSheet]);
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      console.error("Donation create error:", err);
-      setError(err.message || "Failed to process donation. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const goal = 50000;
-  const progress = Math.min((stats.totalAmount / goal) * 100, 100);
-
-  // theme-aware styles
-  const card = {
-    background: "var(--card-bg)",
-    border: "1px solid var(--border-color)",
-    color: "var(--text-primary)",
-  };
-  const glass = {
-    background: "var(--glass-bg)",
-    border: "1px solid var(--border-color)",
-    color: "var(--text-primary)",
-  };
+  const navItems = [
+    { label: "Home", href: "/", icon: "🏠", visible: true },
+    {
+      label: "Donate",
+      href: "/donate",
+      icon: <FaHeart className="inline text-red-400 mr-2" />,
+      visible: true,
+    },
+    {
+      label: "Admin",
+      href: "/admin",
+      icon: "🛡️",
+      visible: user?.role === "admin",
+    },
+    {
+      label: "Seller",
+      href: "/seller",
+      icon: "🏪",
+      visible: user?.role === "seller" || user?.role === "admin",
+    },
+    { label: "Developer", href: "/developer", icon: "👨‍💻", visible: true },
+  ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left: stats */}
-        <aside style={card} className="rounded-2xl p-6 shadow-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h2
-              className="text-2xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              🌟 Community Impact
-            </h2>
-            <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              <span className="font-medium">{stats.totalCount}</span> donors
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="rounded-lg p-4" style={glass}>
-              <div
-                className="text-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                Total Raised
-              </div>
-              <div className="mt-2 text-2xl font-extrabold gradient-text">
-                {formatCurrency(Math.round(stats.totalAmount))}
-              </div>
-            </div>
-            <div className="rounded-lg p-4" style={glass}>
-              <div
-                className="text-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                Amazing Donors
-              </div>
-              <div
-                className="mt-2 text-2xl font-extrabold"
-                style={{ color: "var(--text-primary)" }}
-              >
-                {stats.totalCount}
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-5">
-            <div className="flex items-center justify-between mb-2">
-              <div
-                className="text-sm font-medium"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                🎯 Goal: {formatCurrency(goal)}
-              </div>
-              <div
-                className="text-sm font-medium"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                {progress.toFixed(1)}%
-              </div>
-            </div>
-            <div
-              className="w-full bg-gray-200/60 dark:bg-white/6 h-3 rounded-full overflow-hidden"
-              style={{ border: "1px solid var(--border-color)" }}
-            >
-              <div
-                className="h-3 rounded-full transition-all duration-700"
-                style={{
-                  width: `${progress}%`,
-                  background: "linear-gradient(90deg,#34D399,#60A5FA)",
-                  boxShadow: "0 6px 20px rgba(99,102,241,0.08)",
-                }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h3
-              className="text-lg font-semibold mb-3"
-              style={{ color: "var(--text-primary)" }}
-            >
-              💝 Recent Heroes
-            </h3>
-            <div className="space-y-3 max-h-72 overflow-auto pr-2">
-              {stats.recentDonations.length === 0 && (
-                <div
-                  className="text-sm"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  No donations yet — be the first!
+    <>
+      <nav className="bg-slate-900 sticky top-0 z-50 border-b border-slate-700/50 backdrop-blur-md shadow-lg">
+        <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-3 min-w-0">
+              <Link href="/" className="flex items-center space-x-2 shrink-0">
+                <div className="relative">
+                  <HiSparkles className="text-xl sm:text-2xl md:text-3xl text-yellow-400" />
+                  <div className="absolute inset-0 text-2xl text-yellow-400 opacity-40 blur-sm pointer-events-none" />
                 </div>
+                <span className="text-sm sm:text-base md:text-2xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent truncate">
+                  🌸 BuyBloom
+                </span>
+              </Link>
+            </div>
+
+            {/* Desktop nav */}
+            <div className="hidden md:flex items-center gap-6 overflow-x-auto max-w-[50%] lg:max-w-[60%] scrollbar-hide">
+              {navItems
+                .filter((i) => i.visible)
+                .map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="flex items-center whitespace-nowrap text-sm sm:text-base lg:text-base text-purple-700 dark:text-gray-200 hover:text-purple-900 transition px-1 py-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                  >
+                    <span className="mr-2">{item.icon}</span>
+                    <span className="hidden sm:inline">{item.label}</span>
+                  </Link>
+                ))}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:flex">
+                <ThemeToggle />
+              </div>
+
+              {user && (
+                <Link href="/favorites" className="hidden md:inline-block">
+                  <div className="relative p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:bg-black/20 hover:scale-105 transition">
+                    <FaHeart className="text-lg sm:text-xl text-red-400" />
+                  </div>
+                </Link>
               )}
-              {stats.recentDonations.map((d, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between p-3 rounded-lg"
-                  style={glass}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-100"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      <span className="font-semibold">
-                        {(d.donorName || "Guest").charAt(0)?.toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <div
-                        className="text-sm font-medium"
-                        style={{ color: "var(--text-primary)" }}
-                      >
-                        {d.donorName || "Guest"}
-                      </div>
-                      <div
-                        className="text-xs"
-                        style={{ color: "var(--text-secondary)" }}
-                      >
-                        {new Date(d.date || Date.now()).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className="font-semibold"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    ₹{Number(d.amount).toLocaleString()}
-                  </div>
+
+              <Link href="/cart" className="relative">
+                <div className="relative p-2.5 sm:p-3 rounded-full bg-slate-700 hover:bg-slate-600 transition transform-gpu">
+                  <FaShoppingCart className="text-lg sm:text-xl md:text-2xl text-slate-50" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-cyan-400 text-slate-900 text-[10px] sm:text-xs md:text-sm font-bold rounded-full h-5 w-5 sm:h-6 sm:w-6 md:h-6 md:w-6 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-        </aside>
+              </Link>
 
-        {/* Right: donation form */}
-        <main style={card} className="rounded-2xl p-6 shadow-xl">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1
-                className="text-2xl font-bold mb-1"
-                style={{ color: "var(--text-primary)" }}
-              >
-                💖 Support BuyBloom
-              </h1>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                Fuel development, maintenance and community features.
-              </p>
-            </div>
-            <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              Secure • Fast • Transparent
-            </div>
-          </div>
-
-          {!user && (
-            <div className="rounded-lg p-4 mb-6" style={glass}>
-              <h4
-                className="font-semibold mb-2"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Donate as Guest
-              </h4>
-              <div className="grid grid-cols-1 gap-3">
-                <input
-                  type="text"
-                  placeholder="Your name *"
-                  value={donorName}
-                  onChange={(e) => setDonorName(e.target.value)}
-                  minLength={2}
-                  maxLength={50}
-                  className="w-full p-3 rounded-lg"
-                  style={{
-                    background: "transparent",
-                    border: "1px solid var(--border-color)",
-                    color: "var(--text-primary)",
-                  }}
-                />
-                <input
-                  type="email"
-                  placeholder="Email (optional)"
-                  value={donorEmail}
-                  onChange={(e) => setDonorEmail(e.target.value)}
-                  className="w-full p-3 rounded-lg"
-                  style={{
-                    background: "transparent",
-                    border: "1px solid var(--border-color)",
-                    color: "var(--text-primary)",
-                  }}
-                />
+              <div className="hidden md:flex items-center gap-3">
+                {user ? (
+                  <>
+                    <Link href="/profile">
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+                        <FaUser className="text-blue-400 text-sm sm:text-base" />
+                        <span className="text-xs sm:text-sm text-white font-medium max-w-[8rem] truncate">
+                          {user.name}
+                        </span>
+                        <span className="hidden sm:inline text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                          {user.role}
+                        </span>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="px-3 py-2 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs sm:text-sm"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="px-3 py-2 rounded-full bg-slate-700 text-slate-50 text-sm"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="hidden sm:inline-block bg-violet-600 text-white px-3 py-2 rounded-full text-sm"
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
-            </div>
-          )}
 
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-2"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Donation Amount (INR)
-            </label>
-
-            {/* Chips row */}
-            <div className="flex flex-wrap gap-3 mb-3">
-              {chips.map((c) => {
-                const active = selectedChip === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => handleChipSelect(c)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-transform ${
-                      active ? "scale-105" : ""
-                    }`}
-                    style={{
-                      background: active
-                        ? "linear-gradient(90deg,#34D399,#60A5FA)"
-                        : "var(--glass-bg)",
-                      color: active ? "#fff" : "var(--text-primary)",
-                      border: "1px solid var(--border-color)",
-                    }}
-                  >
-                    ₹{c.toLocaleString()}
-                  </button>
-                );
-              })}
-              {/* Custom amount chip */}
-              <div style={{ minWidth: 160 }} className="ml-1">
-                <input
-                  inputMode="decimal"
-                  value={amount}
-                  onChange={(e) => handleAmountChange(e.target.value)}
-                  placeholder="Custom amount"
-                  className="w-full p-2 rounded-lg"
-                  style={{
-                    background: "transparent",
-                    border: "1px solid var(--border-color)",
-                    color: "var(--text-primary)",
-                  }}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <p
-                className="mt-2 text-sm"
-                style={{ color: "rgba(239,68,68,0.9)" }}
+              {/* Mobile toggle */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (open) {
+                    closeSheet();
+                  } else {
+                    openSheet(e);
+                  }
+                }}
+                aria-controls="mobile-bottom-sheet"
+                aria-expanded={open}
+                className="ml-1 p-2 rounded-md text-slate-200 md:hidden hover:bg-slate-700 transition"
+                title="Toggle menu"
+                type="button"
               >
-                {error}
-              </p>
-            )}
+                {open ? (
+                  <FaTimes className="text-lg" />
+                ) : (
+                  <FaBars className="text-lg" />
+                )}
+              </button>
+            </div>
           </div>
+        </div>
+      </nav>
 
-          <div className="mb-6">
-            <button
-              onClick={handleDonate}
-              disabled={
-                loading ||
-                !!validateAmount(amount) ||
-                (!user && !donorName.trim())
-              }
-              className="w-full py-3 rounded-xl text-white font-semibold shadow-lg transition-transform transform hover:scale-[1.02] disabled:opacity-60"
-              style={{
-                background: "linear-gradient(90deg,#10b981,#06b6d4)",
-                boxShadow: "0 12px 40px rgba(6,182,212,0.12)",
+      {/* Mobile bottom-sheet */}
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              className="fixed inset-0 z-40 md:hidden bg-black/50"
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={() => {
+                if (Date.now() - lastToggleRef.current < OPEN_CLOSE_GUARD_MS)
+                  return;
+                closeSheet();
+              }}
+              aria-hidden="true"
+            />
+
+            <FocusTrap
+              active={open}
+              focusTrapOptions={{
+                clickOutsideDeactivates: false,
+                escapeDeactivates: false,
+                returnFocusOnDeactivate: true,
               }}
             >
-              {loading
-                ? "Processing..."
-                : `Donate ₹${amount ? Number(amount).toLocaleString() : "0"}`}
-            </button>
-          </div>
+              {/* ✅ SIMPLIFIED FLEX STRUCTURE */}
+              <motion.div
+                key="sheet"
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                id="mobile-bottom-sheet"
+                className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full pointer-events-auto rounded-t-xl bg-slate-900 border border-slate-700/60 shadow-2xl flex flex-col"
+                variants={sheetVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+                style={{
+                  maxHeight: "96vh", // ✅ Slightly increased
+                  minHeight: "200px", // ✅ Minimum height
+                }}
+              >
+                {/* ✅ DRAG HANDLE - improves mobile UX */}
+                <div className="w-full flex justify-center pt-3 pb-2 flex-shrink-0">
+                  <div className="h-1 w-12 rounded-full bg-slate-600/50" />
+                </div>
 
-          <div
-            className="text-center"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            <p className="text-sm">
-              You can donate with or without an account. All payments are
-              secure.
-            </p>
-            <p className="text-xs mt-2">Powered by Razorpay</p>
-          </div>
-        </main>
-      </div>
+                {/* ✅ HEADER - always visible */}
+                <div className="px-4 pb-3 border-b border-slate-700/50 flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <Link
+                      href="/"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeSheet();
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <HiSparkles className="text-2xl text-yellow-400" />
+                      <span className="text-base font-semibold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                        BuyBloom
+                      </span>
+                    </Link>
+                    <div className="flex items-center gap-2">
+                      <ThemeToggle />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closeSheet();
+                        }}
+                        aria-label="Close"
+                        className="p-2 text-slate-200"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-      <DonationSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        amount={donatedAmount}
-        donorName={user ? user.name : donorName}
-      />
-    </div>
+                {/* ✅ SCROLLABLE CONTENT - fills remaining space */}
+                <div className="flex-1 overflow-y-auto px-4 pb-6">
+                  {" "}
+                  {/* ✅ Removed top padding, added here */}
+                  <motion.nav
+                    variants={listVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="space-y-2 pt-2" // ✅ Added top padding to nav
+                  >
+                    {navItems
+                      .filter((i) => i.visible)
+                      .map((item, idx) => (
+                        <motion.div key={item.label} variants={itemVariants}>
+                          <Link
+                            href={item.href}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              closeSheet();
+                            }}
+                            className="block w-full px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="text-lg">{item.icon}</span>
+                              <span className="font-medium text-white">
+                                {item.label}
+                              </span>
+                            </div>
+                          </Link>
+                        </motion.div>
+                      ))}
+                  </motion.nav>
+                  <div className="mt-5 flex items-center gap-3">
+                    {user && (
+                      <Link
+                        href="/favorites"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closeSheet();
+                        }}
+                        className="p-3 rounded-lg bg-gradient-to-r from-purple-100 to-pink-100 dark:bg-black/20"
+                      >
+                        <FaHeart className="text-red-400 text-lg" />
+                      </Link>
+                    )}
+                    <Link
+                      href="/cart"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeSheet();
+                      }}
+                      className="relative p-3 rounded-lg bg-slate-700"
+                    >
+                      <FaShoppingCart className="text-slate-50 text-lg" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-cyan-400 text-slate-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                          {cartCount}
+                        </span>
+                      )}
+                    </Link>
+                    <Link
+                      href="/gifts"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeSheet();
+                      }}
+                      className="p-3 rounded-lg bg-slate-700"
+                    >
+                      <FaGift className="text-lg" />
+                    </Link>
+                  </div>
+                  <div className="mt-6 border-t border-slate-700/50 pt-4">
+                    {user ? (
+                      <>
+                        <Link
+                          href="/profile"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            closeSheet();
+                          }}
+                          className="block px-3 py-2 rounded hover:bg-slate-800"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <FaUser className="text-blue-400" />
+                              <div>
+                                <div className="font-medium text-white">
+                                  {user.name}
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                  {user.email}
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                              {user.role}
+                            </span>
+                          </div>
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            logout();
+                            closeSheet();
+                          }}
+                          className="w-full text-left px-3 py-2 rounded bg-gradient-to-r from-red-500 to-pink-500 text-white mt-2"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        <Link
+                          href="/login"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            closeSheet();
+                          }}
+                          className="block text-center px-3 py-2 rounded bg-slate-700 text-slate-50"
+                        >
+                          Login
+                        </Link>
+                        <Link
+                          href="/signup"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            closeSheet();
+                          }}
+                          className="block text-center px-3 py-2 rounded bg-violet-600 text-white"
+                        >
+                          Sign Up
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-4 text-xs text-gray-400">
+                    Tip: press Escape to close, or tap outside the sheet.
+                  </div>
+                </div>
+              </motion.div>
+            </FocusTrap>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

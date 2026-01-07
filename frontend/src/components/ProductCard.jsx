@@ -58,7 +58,7 @@ const ProductCard = memo(({ product }) => {
   };
 
   return (
-    <div className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-200 overflow-hidden card-hover max-w-sm mx-auto">
+    <div className="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-200/50 dark:border-gray-700/50 overflow-hidden card-hover max-w-sm mx-auto">
       {/* Floating Badge */}
       <div className="absolute top-3 left-3 z-10">
         <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold shadow-lg">
@@ -71,7 +71,7 @@ const ProductCard = memo(({ product }) => {
       <button 
         onClick={toggleFavorite}
         disabled={loading}
-        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-300 group-hover:scale-110 shadow-md"
+        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-600 transition-all duration-300 group-hover:scale-110 shadow-md"
       >
         <FaHeart className={`transition-colors text-sm ${
           isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
@@ -79,7 +79,7 @@ const ProductCard = memo(({ product }) => {
       </button>
 
       {/* Image Container */}
-      <div className="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
         <Image
           src={product.image}
           alt={product.name}
@@ -96,22 +96,22 @@ const ProductCard = memo(({ product }) => {
       <div className="p-4 space-y-3">
         {/* Category & Rating */}
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
             {product.category}
           </span>
           <div className="flex items-center space-x-1">
             {[...Array(5)].map((_, i) => (
               <FaStar key={i} className={`text-xs ${
-                i < Math.floor(currentProduct.averageRating || 0) ? 'text-yellow-400' : 'text-gray-300'
+                i < Math.floor(currentProduct.averageRating || 0) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
               }`} />
             ))}
-            <span className="text-xs text-gray-500 ml-1">({currentProduct.totalRatings || 0})</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">({currentProduct.totalRatings || 0})</span>
           </div>
         </div>
 
         {/* Product Name */}
         <Link href={`/product/${product._id}`}>
-          <h3 className="font-bold text-lg text-gray-900 hover:text-purple-600 transition-colors duration-300 line-clamp-2 leading-tight cursor-pointer">
+          <h3 className="font-bold text-lg text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300 line-clamp-2 leading-tight cursor-pointer">
             {product.name}
           </h3>
         </Link>
@@ -120,7 +120,7 @@ const ProductCard = memo(({ product }) => {
         {product.tags && product.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {product.tags.slice(0, 3).map((tag, index) => (
-              <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+              <span key={index} className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
                 #{tag}
               </span>
             ))}
@@ -128,26 +128,26 @@ const ProductCard = memo(({ product }) => {
         )}
 
         {/* Description */}
-        <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+        <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
           {product.description}
         </p>
 
         {/* Price & Action */}
-        <div className="pt-3 border-t border-gray-100">
+        <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-3">
             <div className="flex flex-col">
               <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold text-purple-600">
+                <span className="text-xl font-bold text-purple-600 dark:text-purple-400">
                   ₹{product.price}
                 </span>
                 {product.discount > 0 && product.originalPrice && (
-                  <span className="text-sm text-gray-400 line-through">
+                  <span className="text-sm text-gray-400 dark:text-gray-500 line-through">
                     ₹{product.originalPrice}
                   </span>
                 )}
               </div>
               {product.discount > 0 && (
-                <span className="text-xs text-green-600 font-semibold">
+                <span className="text-xs text-green-600 dark:text-green-400 font-semibold">
                   {product.discount}% OFF
                 </span>
               )}
@@ -156,14 +156,14 @@ const ProductCard = memo(({ product }) => {
           
           <button
             onClick={() => addToCart(product)}
-            className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2"
+            className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2"
           >
             <FaShoppingCart className="text-sm" />
             <span>Add to Cart</span>
           </button>
 
           {/* Additional Info */}
-          <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
             <span className="flex items-center space-x-1">
               <span className="w-2 h-2 bg-green-400 rounded-full"></span>
               <span>In Stock</span>

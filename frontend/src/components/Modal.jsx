@@ -46,12 +46,12 @@ export default function Modal({ isOpen, onClose, type = "success", title, messag
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
       
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-bounce-in">
+      <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-bounce-in border border-gray-200/50 dark:border-gray-700/50">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10"
+          className="absolute top-4 right-4 p-2 rounded-full bg-gray-100/80 dark:bg-gray-700/80 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors z-10"
         >
-          <FaTimes className="text-gray-600" />
+          <FaTimes className="text-gray-600 dark:text-gray-300" />
         </button>
 
         <div className={`bg-gradient-to-r ${getColors()} p-6 text-center text-white`}>
@@ -62,13 +62,13 @@ export default function Modal({ isOpen, onClose, type = "success", title, messag
         </div>
 
         <div className="p-6 text-center">
-          <p className="text-gray-700 mb-6 leading-relaxed">{message}</p>
+          <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">{message}</p>
           
           {type === "confirm" ? (
             <div className="flex space-x-3">
               <button
                 onClick={onClose}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 {cancelText}
               </button>
@@ -77,7 +77,7 @@ export default function Modal({ isOpen, onClose, type = "success", title, messag
                   onConfirm();
                   onClose();
                 }}
-                className="flex-1 py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all"
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 {confirmText}
               </button>
@@ -85,7 +85,7 @@ export default function Modal({ isOpen, onClose, type = "success", title, messag
           ) : (
             <button
               onClick={onClose}
-              className={`w-full py-3 px-6 bg-gradient-to-r ${getColors()} text-white rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105`}
+              className={`w-full py-3 px-6 bg-gradient-to-r ${getColors()} text-white rounded-xl font-semibold hover:opacity-90 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl`}
             >
               OK
             </button>

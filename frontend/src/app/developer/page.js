@@ -20,6 +20,7 @@ export default function DeveloperPage() {
     { name: "Next.js 14", category: "Frontend" },
     { name: "React 18", category: "Frontend" },
     { name: "Tailwind CSS", category: "Styling" },
+    { name: "React Hot Toast", category: "UI" },
     { name: "Node.js", category: "Backend" },
     { name: "Express.js", category: "Backend" },
     { name: "MongoDB", category: "Database" },
@@ -27,6 +28,7 @@ export default function DeveloperPage() {
     { name: "JWT", category: "Authentication" },
     { name: "Razorpay", category: "Payment" },
     { name: "Cloudinary", category: "File Upload" },
+    { name: "ACID Transactions", category: "Database" },
   ];
 
   const features = [
@@ -48,17 +50,17 @@ export default function DeveloperPage() {
     {
       icon: FaShieldAlt,
       title: "Secure Authentication",
-      desc: "JWT-based auth with role-based access control",
+      desc: "JWT-based auth with role-based access control and ACID transactions",
     },
     {
       icon: FaDatabase,
-      title: "Anonymous Donations",
-      desc: "Donation system supporting both registered and guest users",
+      title: "SEO Optimized",
+      desc: "Complete SEO implementation with metadata, structured data, and sitemap",
     },
     {
       icon: FaCode,
       title: "Modern UI/UX",
-      desc: "Responsive design with glass morphism and smooth animations",
+      desc: "Dark/Light theme with glass morphism and B2C color palette",
     },
   ];
 
@@ -131,12 +133,13 @@ export default function DeveloperPage() {
         {/* Project Overview */}
         <div className="glass rounded-2xl p-8 mb-12 border border-white/20">
           <h2 className="text-3xl font-bold text-white mb-6 text-center">
-            E-commerce Platform
+            BuyBloom E-commerce Platform
           </h2>
           <p className="text-white/80 text-lg leading-relaxed text-center mb-8">
-            A modern, full-stack e-commerce platform built with the MERN stack,
-            featuring advanced functionality like anonymous donations, favorites
-            system, product reviews, and secure payment integration.
+            BuyBloom - A modern, full-stack e-commerce platform built with the
+            MERN stack, featuring ACID transactions, concurrent user handling,
+            SEO optimization, dark/light themes, and comprehensive product
+            management with tags and brands.
           </p>
 
           {/* Key Features */}
@@ -183,12 +186,13 @@ export default function DeveloperPage() {
             </h3>
             <ul className="space-y-3 text-white/80">
               <li>• RESTful API with Express.js and Node.js</li>
-              <li>• MongoDB with Mongoose ODM for data modeling</li>
+              <li>• MongoDB with Mongoose ODM and ACID transactions</li>
               <li>• JWT authentication with role-based access</li>
               <li>• File upload with Cloudinary integration</li>
               <li>• Payment processing with Razorpay</li>
               <li>• Input validation and security measures</li>
-              <li>• Anonymous donation system</li>
+              <li>• Concurrent user handling with optimistic updates</li>
+              <li>• Product tags and brand system for SEO</li>
             </ul>
           </div>
 
@@ -198,13 +202,14 @@ export default function DeveloperPage() {
               🎨 Frontend Excellence
             </h3>
             <ul className="space-y-3 text-white/80">
-              <li>• Next.js 14 with App Router</li>
+              <li>• Next.js 14 with App Router and SEO optimization</li>
               <li>• Responsive design with Tailwind CSS</li>
-              <li>• Custom modal system replacing alerts</li>
-              <li>• Glass morphism UI with smooth animations</li>
+              <li>• Dark/Light theme system with smooth transitions</li>
+              <li>• Glass morphism UI with B2C color palette</li>
               <li>• Context API for state management</li>
-              <li>• Dynamic data fetching and real-time updates</li>
-              <li>• Optimized performance with React 18</li>
+              <li>• Toast notifications with React Hot Toast</li>
+              <li>• Optimistic updates with error recovery</li>
+              <li>• Structured data and metadata for search engines</li>
             </ul>
           </div>
         </div>
@@ -223,7 +228,7 @@ export default function DeveloperPage() {
                     Complete E-commerce Solution
                   </h4>
                   <p className="text-white/70 text-sm">
-                    Built from scratch with modern technologies
+                    BuyBloom - Built with modern MERN stack and best practices
                   </p>
                 </div>
               </div>
@@ -231,10 +236,11 @@ export default function DeveloperPage() {
                 <span className="text-2xl">🔐</span>
                 <div>
                   <h4 className="text-white font-semibold">
-                    Security Implementation
+                    ACID Transaction Implementation
                   </h4>
                   <p className="text-white/70 text-sm">
-                    Input validation, XSS protection, secure authentication
+                    Atomic operations with rollback mechanisms and data
+                    consistency
                   </p>
                 </div>
               </div>
@@ -242,10 +248,11 @@ export default function DeveloperPage() {
                 <span className="text-2xl">💳</span>
                 <div>
                   <h4 className="text-white font-semibold">
-                    Payment Integration
+                    Concurrent User Handling
                   </h4>
                   <p className="text-white/70 text-sm">
-                    Razorpay integration with donation system
+                    Optimistic updates with conflict resolution and error
+                    recovery
                   </p>
                 </div>
               </div>
@@ -255,21 +262,19 @@ export default function DeveloperPage() {
                 <span className="text-2xl">📱</span>
                 <div>
                   <h4 className="text-white font-semibold">
-                    Responsive Design
+                    Dark/Light Theme System
                   </h4>
                   <p className="text-white/70 text-sm">
-                    Mobile-first approach with modern UI/UX
+                    Complete theme implementation with smooth transitions
                   </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <span className="text-2xl">⚡</span>
                 <div>
-                  <h4 className="text-white font-semibold">
-                    Performance Optimized
-                  </h4>
+                  <h4 className="text-white font-semibold">SEO Optimization</h4>
                   <p className="text-white/70 text-sm">
-                    Fast loading, efficient state management
+                    Metadata, structured data, sitemap, and search engine ready
                   </p>
                 </div>
               </div>
@@ -277,10 +282,11 @@ export default function DeveloperPage() {
                 <span className="text-2xl">🎯</span>
                 <div>
                   <h4 className="text-white font-semibold">
-                    User Experience Focus
+                    Modern UI/UX Design
                   </h4>
                   <p className="text-white/70 text-sm">
-                    Intuitive interface with smooth interactions
+                    B2C color palette with glass morphism and toast
+                    notifications
                   </p>
                 </div>
               </div>

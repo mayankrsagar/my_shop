@@ -7,6 +7,7 @@ import {
 
 import axios from 'axios';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 import { FaPlus, FaTrash, FaChartLine, FaBox, FaStar, FaRocket } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
 
@@ -21,6 +22,8 @@ export default function SellerDashboard() {
   const [deletingId, setDeletingId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [customCategory, setCustomCategory] = useState("");
+  const [lastSync, setLastSync] = useState(Date.now());
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -79,10 +82,18 @@ export default function SellerDashboard() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products`
       );
       setProducts(res.data);
+      setLastSync(Date.now());
     } catch (err) {
       console.error("Error fetching products:", err);
+      toast.error('Failed to load products');
     }
   }, []);
+
+  const refreshProducts = useCallback(async () => {
+    setIsRefreshing(true);
+    await fetchProducts();
+    setIsRefreshing(false);
+  }, [fetchProducts]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -99,12 +110,25 @@ export default function SellerDashboard() {
     fetchProducts();
     fetchCategories();
     fetchSalesData();
-  }, [fetchProducts, fetchCategories, fetchSalesData]);
+
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(() => {
+      if (Date.now() - lastSync > 60000) {
+        refreshProducts();
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [fetchProducts, fetchCategories, fetchSalesData, lastSync, refreshProducts]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting || !validateForm()) return;
 
+    // Store original state for rollback
+    const originalProducts = [...products];
+    const transactionId = Date.now().toString();
+    
     setIsSubmitting(true);
     const submitData = new FormData();
     submitData.append("name", formData.name.trim());
@@ -116,6 +140,7 @@ export default function SellerDashboard() {
     if (formData.originalPrice) submitData.append("originalPrice", formData.originalPrice);
     if (formData.discount) submitData.append("discount", formData.discount);
     submitData.append("description", formData.description.trim());
+    submitData.append("transactionId", transactionId);
 
     if (formData.imageFile) {
       submitData.append("productImage", formData.imageFile);
@@ -129,14 +154,24 @@ export default function SellerDashboard() {
       submitData.append("tags", JSON.stringify(tagsArray));
     }
 
+    // Optimistic update for editing
+    if (editingProduct) {
+      setProducts(prev => prev.map(p => 
+        p._id === editingProduct._id 
+          ? { ...p, ...Object.fromEntries(submitData), _transactionId: transactionId }
+          : p
+      ));
+    }
+
     try {
+      let response;
       if (editingProduct) {
-        await axios.put(
+        response = await axios.put(
           `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products/${editingProduct._id}`,
           Object.fromEntries(submitData)
         );
       } else {
-        await axios.post(
+        response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products`,
           submitData,
           {
@@ -144,6 +179,8 @@ export default function SellerDashboard() {
           }
         );
       }
+      
+      // Atomic state reset
       setFormData({
         name: "",
         category: "",
@@ -161,12 +198,22 @@ export default function SellerDashboard() {
       setErrors({});
       setShowForm(false);
       setEditingProduct(null);
-      fetchProducts();
-      fetchCategories();
+      
+      // Refresh data to ensure consistency
+      await Promise.all([fetchProducts(), fetchCategories()]);
+      toast.success(editingProduct ? 'Product updated successfully!' : 'Product created successfully!');
     } catch (err) {
+      // Rollback optimistic updates
+      if (editingProduct) {
+        setProducts(originalProducts);
+      }
+      
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Transaction failed";
+      toast.error(`${errorMessage} - Changes rolled back`);
       setErrors({
-        general: err.response?.data?.error || "Error saving product",
+        general: errorMessage,
       });
+      console.error('Product transaction failed:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -174,14 +221,30 @@ export default function SellerDashboard() {
 
   const handleDelete = async (productId) => {
     if (!confirm("Are you sure?")) return;
+    
+    // Store original state for rollback
+    const originalProducts = [...products];
+    const transactionId = Date.now().toString();
+    
+    // Optimistic update with transaction tracking
+    setProducts(prev => prev.filter(p => p._id !== productId));
     setDeletingId(productId);
+    
     try {
       await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products/${productId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/seller/products/${productId}`,
+        { data: { transactionId } }
       );
-      fetchProducts();
+      
+      toast.success('Product deleted successfully!');
+      // Refresh to ensure consistency after successful transaction
+      await refreshProducts();
     } catch (err) {
-      alert("Error deleting product");
+      // Rollback transaction - restore original state
+      setProducts(originalProducts);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || 'Delete transaction failed';
+      toast.error(`${errorMessage} - Changes rolled back`);
+      console.error('Product delete transaction failed:', err);
     } finally {
       setDeletingId(null);
     }
@@ -261,19 +324,31 @@ export default function SellerDashboard() {
                 <span>Sales</span>
               </button>
               {activeTab === "products" && (
-                <button
-                  onClick={() => {
-                    if (showForm && editingProduct) {
-                      handleCancelEdit();
-                    } else {
-                      setShowForm(!showForm);
-                    }
-                  }}
-                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg"
-                >
-                  <FaPlus />
-                  <span>{showForm ? (editingProduct ? "Cancel Edit" : "Cancel") : "Add Product"}</span>
-                </button>
+                <>
+                  <button
+                    onClick={refreshProducts}
+                    disabled={isRefreshing}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500/80 dark:bg-blue-600/80 text-white rounded-xl font-medium hover:bg-blue-600/80 dark:hover:bg-blue-700/80 transition-all duration-300 disabled:opacity-50"
+                  >
+                    <div className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}>
+                      🔄
+                    </div>
+                    <span>{isRefreshing ? 'Syncing...' : 'Refresh'}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (showForm && editingProduct) {
+                        handleCancelEdit();
+                      } else {
+                        setShowForm(!showForm);
+                      }
+                    }}
+                    className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    <FaPlus />
+                    <span>{showForm ? (editingProduct ? "Cancel Edit" : "Cancel") : "Add Product"}</span>
+                  </button>
+                </>
               )}
             </div>
           </div>

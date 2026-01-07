@@ -6,6 +6,7 @@ import {
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import {
   FaEye,
   FaEyeSlash,
@@ -74,8 +75,11 @@ export default function SignupPage() {
 
     try {
       await signup(name.trim(), email, password, role);
+      toast.success('Account created successfully!');
       router.push("/");
     } catch (err) {
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Signup failed";
+      toast.error(errorMessage);
       if (err.response?.data?.details) {
         const validationErrors = {};
         err.response.data.details.forEach((detail) => {
@@ -83,7 +87,7 @@ export default function SignupPage() {
         });
         setErrors(validationErrors);
       } else {
-        setErrors({ general: err.response?.data?.error || "Signup failed" });
+        setErrors({ general: errorMessage });
       }
     } finally {
       setLoading(false);

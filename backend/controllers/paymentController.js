@@ -161,9 +161,9 @@ export const getDonationStats = async (req, res) => {
       recentDonations: recentDonations.map((d) => {
         let donorName = "Anonymous";
         if (d.userId && d.userId.name) {
-          donorName = d.userId.name.charAt(0) + "***";
+          donorName = d.userId.name;
         } else if (d.donorName) {
-          donorName = d.donorName.charAt(0) + "***";
+          donorName = d.donorName;
         }
         return {
           amount: d.amount,

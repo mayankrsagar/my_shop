@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast from 'react-hot-toast';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 
@@ -47,8 +48,11 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
+      toast.success('Login successful!');
       router.push("/");
     } catch (err) {
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Login failed";
+      toast.error(errorMessage);
       if (err.response?.data?.details) {
         const validationErrors = {};
         err.response.data.details.forEach(detail => {
@@ -56,7 +60,7 @@ export default function LoginPage() {
         });
         setErrors(validationErrors);
       } else {
-        setErrors({ general: err.response?.data?.error || "Login failed" });
+        setErrors({ general: errorMessage });
       }
     } finally {
       setLoading(false);

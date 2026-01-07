@@ -1,25 +1,31 @@
 @import "tailwindcss";
 
-/* Light theme variables */
+/* LIGHT MODE */
 :root {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --foreground: #1a202c;
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --border-color: rgba(255, 255, 255, 0.2);
+  --background: linear-gradient(135deg, #f5f7fb 0%, #eef2ff 100%);
+  --foreground: #111827;
+
+  --card-bg: rgba(255, 255, 255, 0.92);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+
+  --border-color: rgba(0, 0, 0, 0.08);
 }
 
-/* Dark theme variables */
+/* DARK MODE */
 .dark {
-  --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  --foreground: #e2e8f0;
-  --card-bg: rgba(30, 41, 59, 0.95);
-  --glass-bg: rgba(0, 0, 0, 0.2);
+  --background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+  --foreground: #e5e7eb;
+
+  --card-bg: rgba(15, 23, 42, 0.95);
+  --glass-bg: rgba(30, 41, 59, 0.7);
+
   --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --text-secondary: #cbd5f5;
+
+  --border-color: rgba(255, 255, 255, 0.12);
 }
 
 body {

@@ -17,305 +17,207 @@ import { HiSparkles } from 'react-icons/hi';
 
 export default function DeveloperPage() {
   const techStack = [
-    { name: "Next.js 14", category: "Frontend" },
-    { name: "React 18", category: "Frontend" },
-    { name: "Tailwind CSS", category: "Styling" },
-    { name: "React Hot Toast", category: "UI" },
-    { name: "Node.js", category: "Backend" },
-    { name: "Express.js", category: "Backend" },
-    { name: "MongoDB", category: "Database" },
-    { name: "Mongoose", category: "ODM" },
-    { name: "JWT", category: "Authentication" },
-    { name: "Razorpay", category: "Payment" },
-    { name: "Cloudinary", category: "File Upload" },
-    { name: "ACID Transactions", category: "Database" },
+    "Next.js 14",
+    "React 18",
+    "Tailwind CSS",
+    "Node.js",
+    "Express.js",
+    "MongoDB",
+    "Mongoose",
+    "JWT Auth",
+    "Razorpay",
+    "Cloudinary",
+    "ACID Transactions",
   ];
 
   const features = [
     {
       icon: FaShoppingCart,
       title: "E-commerce Platform",
-      desc: "Full-featured online shopping with cart, checkout, and order management",
+      desc: "Cart, checkout, orders, sellers, admin dashboard",
     },
     {
       icon: FaHeart,
       title: "Favorites System",
-      desc: "Users can save favorite products with persistent storage",
+      desc: "Persistent wishlist with user accounts",
     },
     {
       icon: FaStar,
-      title: "Rating & Reviews",
-      desc: "Product rating system with user reviews and feedback",
+      title: "Ratings & Reviews",
+      desc: "Verified ratings with aggregation",
     },
     {
       icon: FaShieldAlt,
-      title: "Secure Authentication",
-      desc: "JWT-based auth with role-based access control and ACID transactions",
+      title: "Secure Auth",
+      desc: "JWT, role-based access, protected routes",
     },
     {
       icon: FaDatabase,
       title: "SEO Optimized",
-      desc: "Complete SEO implementation with metadata, structured data, and sitemap",
+      desc: "Metadata, sitemap, structured data",
     },
     {
       icon: FaCode,
       title: "Modern UI/UX",
-      desc: "Dark/Light theme with glass morphism and B2C color palette",
+      desc: "Glass morphism, dark/light themes",
     },
   ];
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <HiSparkles className="text-4xl text-yellow-400 float" />
-            <h1 className="text-4xl lg:text-5xl font-bold text-white">
+    <div className="min-h-screen py-12">
+      <div className="max-w-6xl mx-auto px-4 space-y-16">
+        {/* HEADER */}
+        <section className="text-center space-y-6">
+          <div className="flex items-center justify-center gap-3">
+            <HiSparkles className="text-yellow-400 text-3xl float" />
+            <h1 className="text-4xl lg:text-5xl font-extrabold gradient-text">
               Mayank Sagar
             </h1>
-            <HiSparkles
-              className="text-4xl text-yellow-400 float"
-              style={{ animationDelay: "1s" }}
-            />
-          </div>
-          <p className="text-xl text-white/90 mb-6">
-            Full Stack Developer | MERN Stack Specialist
-          </p>
-          {/* Social Links */}
-          <div className="flex justify-center space-x-6 mb-8">
-            <a
-              href="https://github.com/mayankrsagar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass p-3 rounded-full hover:scale-110 transition-transform"
-            >
-              <FaGithub className="text-2xl text-white" />
-            </a>
-            <a
-              href="https://www.linkedin.com/in/mayank-sagar-mern/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass p-3 rounded-full hover:scale-110 transition-transform"
-            >
-              <FaLinkedin className="text-2xl text-blue-400" />
-            </a>
-            <a
-              href="https://dev.to/mayankrsagar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass p-3 rounded-full hover:scale-110 transition-transform"
-            >
-              <FaDev className="text-2xl text-white" />
-            </a>
-            <a
-              href="https://x.com/mayankrsagar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass p-3 rounded-full hover:scale-110 transition-transform"
-            >
-              <FaTwitter className="text-2xl text-blue-400" />
-            </a>
+            <HiSparkles className="text-yellow-400 text-3xl float" />
           </div>
 
-          {/* Resume Download */}
-          <a
-            href="https://docs.google.com/document/d/1nQHDhdhh4ZFTyWJietoAg5ZZdV8p170_/edit?usp=drive_link&ouid=113535936798106572507&rtpof=true&sd=true"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary inline-flex items-center space-x-2"
-          >
-            <FaDownload />
-            <span>View Resume</span>
-          </a>
-        </div>
-
-        {/* Project Overview */}
-        <div className="glass rounded-2xl p-8 mb-12 border border-white/20">
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">
-            BuyBloom E-commerce Platform
-          </h2>
-          <p className="text-white/80 text-lg leading-relaxed text-center mb-8">
-            BuyBloom - A modern, full-stack e-commerce platform built with the
-            MERN stack, featuring ACID transactions, concurrent user handling,
-            SEO optimization, dark/light themes, and comprehensive product
-            management with tags and brands.
+          <p className="text-lg md:text-xl text-[var(--text-secondary)]">
+            Full-Stack Developer • MERN Specialist • System Builder
           </p>
 
-          {/* Key Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10"
+          {/* Socials */}
+          <div className="flex justify-center gap-5">
+            {[
+              { href: "https://github.com/mayankrsagar", icon: FaGithub },
+              {
+                href: "https://www.linkedin.com/in/mayank-sagar-mern/",
+                icon: FaLinkedin,
+              },
+              { href: "https://dev.to/mayankrsagar", icon: FaDev },
+              { href: "https://x.com/mayankrsagar", icon: FaTwitter },
+            ].map((s, i) => (
+              <a
+                key={i}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glass p-3 rounded-full hover:scale-110 transition"
               >
-                <feature.icon className="text-3xl text-purple-400 mb-4" />
-                <h3 className="text-white font-semibold mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-white/70 text-sm">{feature.desc}</p>
-              </div>
+                <s.icon className="text-xl text-[var(--text-primary)]" />
+              </a>
             ))}
           </div>
 
-          {/* Tech Stack */}
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-white mb-6">
-              Technology Stack
-            </h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              {techStack.map((tech, index) => (
-                <span
-                  key={index}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 
-                               border border-purple-400/30 rounded-full text-white text-sm font-medium"
-                >
-                  {tech.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
+          <a
+            href="https://docs.google.com/document/d/1nQHDhdhh4ZFTyWJietoAg5ZZdV8p170_/edit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <FaDownload /> View Resume
+          </a>
+        </section>
 
-        {/* Project Highlights */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Backend Features */}
-          <div className="glass rounded-2xl p-6 border border-white/20">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              🔧 Backend Architecture
-            </h3>
-            <ul className="space-y-3 text-white/80">
-              <li>• RESTful API with Express.js and Node.js</li>
-              <li>• MongoDB with Mongoose ODM and ACID transactions</li>
-              <li>• JWT authentication with role-based access</li>
-              <li>• File upload with Cloudinary integration</li>
-              <li>• Payment processing with Razorpay</li>
-              <li>• Input validation and security measures</li>
-              <li>• Concurrent user handling with optimistic updates</li>
-              <li>• Product tags and brand system for SEO</li>
-            </ul>
-          </div>
-
-          {/* Frontend Features */}
-          <div className="glass rounded-2xl p-6 border border-white/20">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              🎨 Frontend Excellence
-            </h3>
-            <ul className="space-y-3 text-white/80">
-              <li>• Next.js 14 with App Router and SEO optimization</li>
-              <li>• Responsive design with Tailwind CSS</li>
-              <li>• Dark/Light theme system with smooth transitions</li>
-              <li>• Glass morphism UI with B2C color palette</li>
-              <li>• Context API for state management</li>
-              <li>• Toast notifications with React Hot Toast</li>
-              <li>• Optimistic updates with error recovery</li>
-              <li>• Structured data and metadata for search engines</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Key Achievements */}
-        <div className="glass rounded-2xl p-8 mb-12 border border-white/20">
-          <h3 className="text-3xl font-bold text-white mb-6 text-center">
-            🏆 Key Achievements
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">✅</span>
-                <div>
-                  <h4 className="text-white font-semibold">
-                    Complete E-commerce Solution
-                  </h4>
-                  <p className="text-white/70 text-sm">
-                    BuyBloom - Built with modern MERN stack and best practices
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">🔐</span>
-                <div>
-                  <h4 className="text-white font-semibold">
-                    ACID Transaction Implementation
-                  </h4>
-                  <p className="text-white/70 text-sm">
-                    Atomic operations with rollback mechanisms and data
-                    consistency
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">💳</span>
-                <div>
-                  <h4 className="text-white font-semibold">
-                    Concurrent User Handling
-                  </h4>
-                  <p className="text-white/70 text-sm">
-                    Optimistic updates with conflict resolution and error
-                    recovery
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">📱</span>
-                <div>
-                  <h4 className="text-white font-semibold">
-                    Dark/Light Theme System
-                  </h4>
-                  <p className="text-white/70 text-sm">
-                    Complete theme implementation with smooth transitions
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">⚡</span>
-                <div>
-                  <h4 className="text-white font-semibold">SEO Optimization</h4>
-                  <p className="text-white/70 text-sm">
-                    Metadata, structured data, sitemap, and search engine ready
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">🎯</span>
-                <div>
-                  <h4 className="text-white font-semibold">
-                    Modern UI/UX Design
-                  </h4>
-                  <p className="text-white/70 text-sm">
-                    B2C color palette with glass morphism and toast
-                    notifications
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Contact CTA */}
-        <div className="text-center glass rounded-2xl p-8 border border-white/20">
-          <h3 className="text-2xl font-bold text-white mb-4">{`Let's Connect!`}</h3>
-          <p className="text-white/80 mb-6">
-            Interested in discussing opportunities or learning more about this
-            project?
+        {/* PROJECT OVERVIEW */}
+        <section className="glass rounded-2xl p-8">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            BuyBloom — E-commerce Platform
+          </h2>
+          <p className="text-center max-w-3xl mx-auto text-[var(--text-secondary)] leading-relaxed">
+            BuyBloom is a production-ready MERN e-commerce platform featuring
+            secure payments, ACID-safe transactions, role-based access, SEO
+            optimization, and a polished B2C UI experience.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Link
-              href="mailto:mayankrsagar@gmail.com"
-              className="btn-primary inline-flex items-center justify-center"
-            >
-              📧 Email Me
+        </section>
+
+        {/* FEATURES */}
+        <section>
+          <h3 className="text-2xl font-bold text-center mb-10">
+            Core Features
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((f, i) => (
+              <div
+                key={i}
+                className="glass rounded-xl p-6 hover:-translate-y-1 transition"
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
+                  <f.icon className="text-white text-xl" />
+                </div>
+                <h4 className="font-semibold mb-2">{f.title}</h4>
+                <p className="text-sm text-[var(--text-secondary)]">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* TECH STACK */}
+        <section className="text-center">
+          <h3 className="text-2xl font-bold mb-6">Technology Stack</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            {techStack.map((tech, i) => (
+              <span
+                key={i}
+                className="px-4 py-2 rounded-full text-sm font-medium
+                bg-[var(--glass-bg)] border border-[var(--border-color)]
+                text-[var(--text-primary)] hover:scale-105 transition"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* HIGHLIGHTS */}
+        <section className="grid md:grid-cols-2 gap-8">
+          {[
+            {
+              title: "Backend Architecture",
+              items: [
+                "RESTful APIs with Express",
+                "MongoDB + Mongoose transactions",
+                "JWT & role-based access",
+                "Razorpay payment gateway",
+                "Cloudinary file uploads",
+              ],
+            },
+            {
+              title: "Frontend Excellence",
+              items: [
+                "Next.js App Router",
+                "SEO metadata & sitemap",
+                "Dark / Light theme system",
+                "Glass morphism UI",
+                "Optimistic updates",
+              ],
+            },
+          ].map((box, i) => (
+            <div key={i} className="glass rounded-2xl p-6">
+              <h4 className="text-xl font-bold mb-4">{box.title}</h4>
+              <ul className="space-y-2 text-[var(--text-secondary)]">
+                {box.items.map((item, idx) => (
+                  <li key={idx}>• {item}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+
+        {/* CTA */}
+        <section className="glass rounded-2xl p-8 text-center">
+          <h3 className="text-2xl font-bold mb-3">Let’s Connect</h3>
+          <p className="text-[var(--text-secondary)] mb-6">
+            Open to full-time roles, freelance projects, and technical
+            discussions.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link href="mailto:mayankrsagar@gmail.com" className="btn-primary">
+              Email Me
             </Link>
             <Link
               href="/"
-              className="px-6 py-3 border border-white/30 text-white rounded-lg hover:bg-white/10 transition-colors"
+              className="px-6 py-3 rounded-lg border border-[var(--border-color)]
+              hover:bg-[var(--glass-bg)] transition"
             >
-              🏠 Explore the Platform
+              Explore Platform
             </Link>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

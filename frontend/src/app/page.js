@@ -276,61 +276,92 @@ export default function Home() {
         </p>
 
         {/* Community Impact Section */}
-        <div className="glass rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto mt-8 sm:mt-12 border border-slate-200/40 dark:border-slate-700/50 mx-4 bg-gradient-to-br from-slate-50/90 via-cyan-50/70 to-violet-50/70 dark:bg-slate-800/50 shadow-xl backdrop-blur-md">
-          <div className="flex items-center justify-center space-x-2 mb-4 sm:mb-6">
-            <span className="text-xl sm:text-2xl">🌟</span>
-            <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent dark:text-slate-50">
+        <div className="glass rounded-3xl p-6 sm:p-10 max-w-4xl mx-auto mt-8 sm:mt-12 border border-purple-200/50 dark:border-white/10 mx-4 bg-white/70 dark:bg-zinc-900/80 shadow-2xl backdrop-blur-xl transition-all hover:shadow-purple-500/10">
+          {/* Header with improved contrast */}
+          <div className="flex items-center justify-center space-x-3 mb-8 sm:mb-10">
+            <span className="text-2xl animate-bounce">🌟</span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">
               Community Impact
             </h2>
-            <span className="text-xl sm:text-2xl">🌟</span>
+            <span
+              className="text-2xl animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            >
+              🌟
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-            <div className="text-center space-y-2">
-              <div className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 drop-shadow-md">
+          {/* Stats Grid - Fixed Visibility & Mobile Layout */}
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-4">
+            <div className="flex flex-col items-center justify-center space-y-2 p-4 rounded-2xl bg-violet-50/50 dark:bg-white/5">
+              <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                 ₹{donationStats.totalAmount.toLocaleString()}
               </div>
-              <div className="text-gray-600 dark:text-gray-200/80 text-sm sm:text-base">
+              <div className="text-violet-600 dark:text-violet-400 text-sm sm:text-base font-bold uppercase tracking-wider">
                 💰 Total Raised
               </div>
             </div>
-            <div className="text-center space-y-2">
-              <div className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 drop-shadow-md">
+
+            <div className="flex flex-col items-center justify-center space-y-2 p-4 rounded-2xl bg-cyan-50/50 dark:bg-white/5">
+              <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                 {donationStats.totalCount}
               </div>
-              <div className="text-gray-600 dark:text-gray-200/80 text-sm sm:text-base">
+              <div className="text-cyan-600 dark:text-cyan-400 text-sm sm:text-base font-bold uppercase tracking-wider">
                 🦸 Amazing Heroes
               </div>
             </div>
-            <div className="text-center space-y-2">
-              <div className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 drop-shadow-md">
+
+            <div className="flex flex-col items-center justify-center space-y-2 p-4 rounded-2xl bg-fuchsia-50/50 dark:bg-white/5">
+              <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white truncate max-w-full px-2">
                 {donationStats.recentDonations.length > 0
                   ? donationStats.recentDonations[0].donorName
-                  : "None yet"}
+                  : "---"}
               </div>
-              <div className="text-gray-600 dark:text-gray-200/80 text-sm sm:text-base">
+              <div className="text-fuchsia-600 dark:text-fuchsia-400 text-sm sm:text-base font-bold uppercase tracking-wider">
                 ❤️ Recent Hero
               </div>
             </div>
           </div>
 
-          <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-purple-50/80 dark:bg-gray-700/30 rounded-xl border border-purple-200/50 dark:border-gray-600/30 shadow-sm">
-            <div className="flex items-center space-x-3 mb-3">
-              <span className="text-base sm:text-lg">🎯</span>
-              <span className="text-gray-800 dark:text-gray-200 font-semibold text-sm sm:text-base">
-                {donationStats.recentDonations.length > 0
-                  ? `${donationStats.recentDonations[0].donorName} donated ₹${donationStats.recentDonations[0].amount}`
-                  : "Be the first to donate!"}
-              </span>
+          {/* Goal & Progress Bar Section */}
+          <div className="mt-10 p-5 sm:p-8 bg-white/50 dark:bg-zinc-800/50 rounded-2xl border border-slate-200 dark:border-zinc-700 shadow-inner">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="bg-orange-100 dark:bg-orange-500/20 p-2 rounded-lg">
+                  <span className="text-xl">🎯</span>
+                </div>
+                <span className="text-slate-800 dark:text-zinc-100 font-bold text-base sm:text-lg">
+                  {donationStats.recentDonations.length > 0
+                    ? `${donationStats.recentDonations[0].donorName} just gave ₹${donationStats.recentDonations[0].amount}!`
+                    : "Waiting for our first hero..."}
+                </span>
+              </div>
+              <div className="text-sm font-black text-slate-500 dark:text-zinc-400 whitespace-nowrap">
+                GOAL: ₹50,000
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300/70">
-              <span>🎯 Goal: ₹50,000</span>
-              <span>•</span>
-              <span>
+
+            {/* Modern Progress Bar */}
+            <div className="relative w-full h-4 bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+              <div
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-orange-400 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                style={{
+                  width: `${Math.min(
+                    (donationStats.totalAmount / 50000) * 100,
+                    100
+                  )}%`,
+                }}
+              />
+            </div>
+
+            <div className="mt-3 flex justify-between items-center text-xs sm:text-sm font-bold">
+              <span className="text-violet-600 dark:text-violet-400">
                 {((donationStats.totalAmount / 50000) * 100).toFixed(1)}%
-                Complete!
+                Completed
               </span>
-              <span className="text-orange-400">🔥</span>
+              <span className="flex items-center text-orange-500 animate-pulse">
+                KEEP BLOOMING <span className="ml-1">🔥</span>
+              </span>
             </div>
           </div>
         </div>

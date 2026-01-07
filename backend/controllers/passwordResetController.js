@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import PasswordReset from '../models/PasswordReset.js';
 
+import { sendPasswordResetEmail } from '../config/email.js';
+
 // Request password reset
 export const requestPasswordReset = async (req, res) => {
   try {
@@ -33,11 +35,13 @@ export const requestPasswordReset = async (req, res) => {
         token: hashedToken
       });
 
-      // In production, send email here
-      console.log(`Password reset link: ${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`);
-      
-      // TODO: Send email with reset link
-      // await sendPasswordResetEmail(user.email, resetToken);
+      // Send email with reset link
+      try {
+        await sendPasswordResetEmail(user.email, resetToken);
+      } catch (emailError) {
+        console.error('Failed to send password reset email:', emailError);
+        // Do not expose email sending failure to the client to prevent user enumeration
+      }
     }
 
     // Always return same response regardless of whether email exists

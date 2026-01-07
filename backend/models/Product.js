@@ -14,6 +14,8 @@ const productSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    tags: [{ type: String, trim: true, lowercase: true }],
+    brand: { type: String, trim: true },
     averageRating: { type: Number, default: 0 },
     totalRatings: { type: Number, default: 0 },
   },

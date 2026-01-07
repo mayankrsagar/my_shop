@@ -131,7 +131,7 @@ export default function DeveloperPage() {
         {/* Project Overview */}
         <div className="glass rounded-2xl p-8 mb-12 border border-white/20">
           <h2 className="text-3xl font-bold text-white mb-6 text-center">
-            🚀 ShopVibe E-commerce Platform
+            E-commerce Platform
           </h2>
           <p className="text-white/80 text-lg leading-relaxed text-center mb-8">
             A modern, full-stack e-commerce platform built with the MERN stack,

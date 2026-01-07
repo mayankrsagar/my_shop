@@ -30,6 +30,8 @@ export default function SellerDashboard() {
     description: "",
     image: "",
     imageFile: null,
+    brand: "",
+    tags: "",
   });
   const [editingProduct, setEditingProduct] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -121,6 +123,12 @@ export default function SellerDashboard() {
       submitData.append("image", formData.image);
     }
 
+    if (formData.brand) submitData.append("brand", formData.brand.trim());
+    if (formData.tags) {
+      const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+      submitData.append("tags", JSON.stringify(tagsArray));
+    }
+
     try {
       if (editingProduct) {
         await axios.put(
@@ -145,6 +153,8 @@ export default function SellerDashboard() {
         description: "",
         image: "",
         imageFile: null,
+        brand: "",
+        tags: "",
       });
       setCustomCategory("");
       setImagePreview("");
@@ -188,6 +198,8 @@ export default function SellerDashboard() {
       description: product.description,
       image: product.image,
       imageFile: null,
+      brand: product.brand || "",
+      tags: product.tags ? product.tags.join(', ') : "",
     });
     setImagePreview(product.image);
     setShowForm(true);
@@ -204,6 +216,8 @@ export default function SellerDashboard() {
       description: "",
       image: "",
       imageFile: null,
+      brand: "",
+      tags: "",
     });
     setImagePreview("");
     setShowForm(false);
@@ -213,13 +227,13 @@ export default function SellerDashboard() {
     <ProtectedRoute allowedRoles={["seller", "admin"]}>
       <div className="min-h-screen space-y-8">
         {/* Header */}
-        <div className="glass rounded-2xl p-6 border border-white/20">
+        <div className="glass rounded-2xl p-6 border border-white/20 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/50">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-3">
               <FaRocket className="text-3xl text-yellow-400 float" />
               <div>
                 <h1 className="text-4xl font-bold gradient-text">🏪 Seller Dashboard</h1>
-                <p className="text-white/70 mt-1">Manage your magical products and sales</p>
+                <p className="text-gray-600 dark:text-white/70 mt-1">Manage your magical products and sales</p>
               </div>
             </div>
             
@@ -229,7 +243,7 @@ export default function SellerDashboard() {
                 className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === "products"
                     ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                    : "bg-white/10 text-white hover:bg-white/20"
+                    : "bg-white/10 dark:bg-white/10 text-gray-700 dark:text-white hover:bg-white/20 dark:hover:bg-white/20"
                 }`}
               >
                 <FaBox />
@@ -240,7 +254,7 @@ export default function SellerDashboard() {
                 className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === "sales"
                     ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                    : "bg-white/10 text-white hover:bg-white/20"
+                    : "bg-white/10 dark:bg-white/10 text-gray-700 dark:text-white hover:bg-white/20 dark:hover:bg-white/20"
                 }`}
               >
                 <FaChartLine />
@@ -278,7 +292,7 @@ export default function SellerDashboard() {
                         <span className="text-2xl text-white">💰</span>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-white/80">Total Sales</h3>
+                        <h3 className="text-lg font-semibold text-gray-600 dark:text-white/80">Total Sales</h3>
                         <p className="text-3xl font-bold gradient-text">₹{salesData.totalSales}</p>
                       </div>
                     </div>
@@ -289,7 +303,7 @@ export default function SellerDashboard() {
                         <span className="text-2xl text-white">📦</span>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-white/80">Total Orders</h3>
+                        <h3 className="text-lg font-semibold text-gray-600 dark:text-white/80">Total Orders</h3>
                         <p className="text-3xl font-bold gradient-text">{salesData.totalOrders}</p>
                       </div>
                     </div>
@@ -299,14 +313,14 @@ export default function SellerDashboard() {
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="glass rounded-2xl p-6 border border-white/20">
-                    <h3 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center space-x-2">
                       <span>📈</span>
                       <span>Monthly Sales</span>
                     </h3>
                     <div className="space-y-3">
                       {Object.entries(salesData.monthlyData).map(([month, amount]) => (
-                        <div key={month} className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                          <span className="text-white/80">{month}</span>
+                        <div key={month} className="flex justify-between items-center p-3 bg-gray-100/50 dark:bg-white/5 rounded-lg">
+                          <span className="text-gray-700 dark:text-white/80">{month}</span>
                           <span className="font-semibold gradient-text">₹{amount}</span>
                         </div>
                       ))}
@@ -314,14 +328,14 @@ export default function SellerDashboard() {
                   </div>
 
                   <div className="glass rounded-2xl p-6 border border-white/20">
-                    <h3 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center space-x-2">
                       <span>📅</span>
                       <span>Daily Sales (Last 30 Days)</span>
                     </h3>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {Object.entries(salesData.dailyData).map(([day, amount]) => (
-                        <div key={day} className="flex justify-between items-center p-2 bg-white/5 rounded-lg">
-                          <span className="text-white/80 text-sm">{day}</span>
+                        <div key={day} className="flex justify-between items-center p-2 bg-gray-100/50 dark:bg-white/5 rounded-lg">
+                          <span className="text-gray-700 dark:text-white/80 text-sm">{day}</span>
                           <span className="font-semibold gradient-text text-sm">₹{amount}</span>
                         </div>
                       ))}
@@ -332,8 +346,8 @@ export default function SellerDashboard() {
             ) : (
               <div className="glass rounded-2xl p-12 text-center border border-white/20">
                 <div className="text-6xl mb-4">📈</div>
-                <p className="text-xl text-white/80">No sales data available yet</p>
-                <p className="text-white/60 mt-2">Start selling to see your analytics!</p>
+                <p className="text-xl text-gray-700 dark:text-white/80">No sales data available yet</p>
+                <p className="text-gray-600 dark:text-white/60 mt-2">Start selling to see your analytics!</p>
               </div>
             )}
           </div>
@@ -345,7 +359,7 @@ export default function SellerDashboard() {
             {/* Add Product Form */}
             {showForm && (
               <div className="glass rounded-2xl p-6 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-6 flex items-center space-x-2">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center space-x-2">
                   <HiSparkles className="text-yellow-400" />
                   <span>{editingProduct ? "Edit Product" : "Add New Magical Product"}</span>
                 </h2>
@@ -353,14 +367,14 @@ export default function SellerDashboard() {
                   <input
                     type="text"
                     placeholder="Product Name"
-                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    className="w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                   
                   <select
-                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 appearance-none cursor-pointer"
+                    className="w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 appearance-none cursor-pointer"
                     value={formData.category === "custom" ? "custom" : formData.category}
                     onChange={(e) => {
                       if (e.target.value === "custom") {
@@ -372,20 +386,20 @@ export default function SellerDashboard() {
                     }}
                     required
                   >
-                    <option value="" className="bg-gray-800 text-white">Select Category</option>
+                    <option value="" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white">Select Category</option>
                     {categories.map((category) => (
-                      <option key={category} value={category} className="bg-gray-800 text-white">
+                      <option key={category} value={category} className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white">
                         {category}
                       </option>
                     ))}
-                    <option value="custom" className="bg-gray-800 text-white">Add New Category</option>
+                    <option value="custom" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white">Add New Category</option>
                   </select>
                   
                   {formData.category === "custom" && (
                     <input
                       type="text"
                       placeholder="Enter new category"
-                      className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                      className="w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
                       value={customCategory}
                       onChange={(e) => setCustomCategory(e.target.value)}
                     />
@@ -394,16 +408,32 @@ export default function SellerDashboard() {
                   <input
                     type="number"
                     placeholder="Price (₹)"
-                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    className="w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     required
                   />
                   
                   <input
+                    type="text"
+                    placeholder="Brand Name (Optional)"
+                    className="w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    value={formData.brand}
+                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                  />
+                  
+                  <input
+                    type="text"
+                    placeholder="Tags (comma separated, e.g: wireless, bluetooth, gaming)"
+                    className="w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    value={formData.tags}
+                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  />
+                  
+                  <input
                     type="number"
                     placeholder="Discount (%) - Optional"
-                    className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
+                    className="w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300"
                     value={formData.discount}
                     onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
                     min="0"
@@ -412,7 +442,7 @@ export default function SellerDashboard() {
                   
                   <textarea
                     placeholder="Product Description"
-                    className="md:col-span-2 w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 h-32 resize-none"
+                    className="md:col-span-2 w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-300 h-32 resize-none"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     required
@@ -422,7 +452,7 @@ export default function SellerDashboard() {
                     <input
                       type="file"
                       accept="image/*"
-                      className="md:col-span-2 w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-purple-600 file:to-pink-600 file:text-white file:cursor-pointer hover:file:from-purple-700 hover:file:to-pink-700 transition-all duration-300"
+                      className="md:col-span-2 w-full p-4 bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-purple-600 file:to-pink-600 file:text-white file:cursor-pointer hover:file:from-purple-700 hover:file:to-pink-700 transition-all duration-300"
                       onChange={(e) => {
                         const file = e.target.files[0];
                         if (file) {
@@ -462,7 +492,7 @@ export default function SellerDashboard() {
             {/* Products Grid */}
             <div className="glass rounded-2xl border border-white/20 overflow-hidden">
               <div className="p-6 border-b border-white/10">
-                <h2 className="text-2xl font-semibold text-white flex items-center space-x-2">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white flex items-center space-x-2">
                   <FaBox className="text-purple-400" />
                   <span>My Products ({products.length})</span>
                 </h2>
@@ -496,9 +526,9 @@ export default function SellerDashboard() {
                       </div>
                       
                       <div className="space-y-2">
-                        <h3 className="font-semibold text-white text-lg">{product.name}</h3>
-                        <p className="text-purple-300 text-sm">{product.category}</p>
-                        <p className="text-white/70 text-sm line-clamp-2">{product.description}</p>
+                        <h3 className="font-semibold text-gray-800 dark:text-white text-lg">{product.name}</h3>
+                        <p className="text-purple-600 dark:text-purple-300 text-sm">{product.category}</p>
+                        <p className="text-gray-600 dark:text-white/70 text-sm line-clamp-2">{product.description}</p>
                         <div className="flex items-center justify-between pt-2">
                           <div className="flex flex-col">
                             <span className="text-xl font-bold gradient-text">₹{product.price}</span>
@@ -537,8 +567,8 @@ export default function SellerDashboard() {
               ) : (
                 <div className="p-12 text-center">
                   <div className="text-6xl mb-4">📦</div>
-                  <p className="text-xl text-white/80">No products yet</p>
-                  <p className="text-white/60 mt-2">Add your first magical product!</p>
+                  <p className="text-xl text-gray-700 dark:text-white/80">No products yet</p>
+                  <p className="text-gray-600 dark:text-white/60 mt-2">Add your first magical product!</p>
                 </div>
               )}
             </div>

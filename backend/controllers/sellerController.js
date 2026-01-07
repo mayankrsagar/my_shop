@@ -4,7 +4,7 @@ import cloudinary from '../config/cloudinary.js';
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, category, price, originalPrice, discount, description, image } = req.body;
+    const { name, category, price, originalPrice, discount, description, image, brand, tags } = req.body;
     let imageUrl = image;
     
     // If file uploaded, use cloudinary
@@ -31,6 +31,16 @@ export const createProduct = async (req, res) => {
       }
     }
     
+    // Parse tags if provided
+    let parsedTags = [];
+    if (tags) {
+      try {
+        parsedTags = JSON.parse(tags);
+      } catch (e) {
+        parsedTags = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+      }
+    }
+    
     const product = await Product.create({
       name,
       category,
@@ -39,6 +49,8 @@ export const createProduct = async (req, res) => {
       discount: finalDiscount,
       description,
       image: imageUrl,
+      brand: brand || undefined,
+      tags: parsedTags,
       sellerId: req.user.id
     });
     
@@ -60,10 +72,24 @@ export const getSellerProducts = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { productId } = req.params;
-    const { name, category, price, originalPrice, discount, description } = req.body;
+    const { name, category, price, originalPrice, discount, description, brand, tags } = req.body;
     
     // Calculate price based on discount if provided
     let updateData = { name, category, description };
+    
+    if (brand !== undefined) updateData.brand = brand || undefined;
+    
+    if (tags !== undefined) {
+      let parsedTags = [];
+      if (tags) {
+        try {
+          parsedTags = JSON.parse(tags);
+        } catch (e) {
+          parsedTags = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+        }
+      }
+      updateData.tags = parsedTags;
+    }
     
     if (price !== undefined) {
       let finalPrice = parseFloat(price);
@@ -92,7 +118,7 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
     
-    res.json(product);
+    res.json({ success: true, product });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

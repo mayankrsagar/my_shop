@@ -1,11 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from 'react';
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  FaEye,
+  FaEyeSlash,
+} from 'react-icons/fa';
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from '../../context/AuthContext';
 
 export default function SignupPage() {
   const [name, setName] = useState("");
@@ -100,18 +106,18 @@ export default function SignupPage() {
         <div className="glass rounded-2xl p-8 border border-white/20">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">
-              Join ShopVibe
+              Join BuyBloom
             </h2>
             <p className="text-white/70">Create your account</p>
           </div>
-          
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.general && (
               <div className="bg-red-500/20 border border-red-400/30 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm">
                 {errors.general}
               </div>
             )}
-            
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">
                 Full Name
@@ -130,7 +136,7 @@ export default function SignupPage() {
                 <p className="mt-2 text-sm text-red-300">{errors.name}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">
                 Email Address
@@ -149,7 +155,7 @@ export default function SignupPage() {
                 <p className="mt-2 text-sm text-red-300">{errors.email}</p>
               )}
             </div>
-            
+
             <div className="relative">
               <label className="block text-sm font-medium text-white/80 mb-2">
                 Password
@@ -175,7 +181,7 @@ export default function SignupPage() {
                 <p className="mt-2 text-sm text-red-300">{errors.password}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">
                 Account Type
@@ -185,12 +191,18 @@ export default function SignupPage() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <option value="user" className="bg-gray-800 text-white">Customer</option>
-                <option value="seller" className="bg-gray-800 text-white">Seller</option>
-                <option value="admin" className="bg-gray-800 text-white">Admin</option>
+                <option value="user" className="bg-gray-800 text-white">
+                  Customer
+                </option>
+                <option value="seller" className="bg-gray-800 text-white">
+                  Seller
+                </option>
+                <option value="admin" className="bg-gray-800 text-white">
+                  Admin
+                </option>
               </select>
             </div>
-            
+
             <button
               type="submit"
               disabled={loading}
@@ -198,11 +210,14 @@ export default function SignupPage() {
             >
               {loading ? "Creating account..." : "Create Account"}
             </button>
-            
+
             <div className="text-center pt-4">
               <p className="text-white/70">
                 Already have an account?{" "}
-                <Link href="/login" className="text-purple-300 hover:text-purple-200 font-medium transition-colors">
+                <Link
+                  href="/login"
+                  className="text-purple-300 hover:text-purple-200 font-medium transition-colors"
+                >
                   Sign in
                 </Link>
               </p>

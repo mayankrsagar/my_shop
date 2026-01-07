@@ -1,23 +1,35 @@
 import './globals.css';
 
-import Navbar from '../components/Navbar';
+import { Inter } from 'next/font/google';
+
 import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
+import {
+  generateMetadata as genMeta,
+  generateOrganizationStructuredData,
+} from '../lib/seo';
 import Providers from './Providers';
-import { generateMetadata as genMeta, generateOrganizationStructuredData } from '../lib/seo';
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = genMeta({
-  title: "Premium Online Shopping - Best Deals & Fast Shipping",
-  description: "Shop premium products at MyShop. Electronics, fashion, home goods with secure checkout, fast shipping, and 24/7 customer support.",
-  keywords: ["online shopping", "ecommerce", "electronics", "fashion", "home goods", "premium products"]
+  title: "Premium Online Shopping - Best Deals & Fast Shipping | BuyBloom",
+  description:
+    "Shop premium products at BuyBloom. Electronics, fashion, home goods with secure checkout, fast shipping, and 24/7 customer support.",
+  keywords: [
+    "online shopping",
+    "ecommerce",
+    "electronics",
+    "fashion",
+    "home goods",
+    "premium products",
+  ],
 });
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
         <script
           src="https://checkout.razorpay.com/v1/checkout.js"
           async
@@ -25,14 +37,14 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(generateOrganizationStructuredData())
+            __html: JSON.stringify(generateOrganizationStructuredData()),
           }}
         />
       </head>
-      <body className="min-h-screen">
+      <body className={`min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-violet-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-50 ${inter.className}`}>
         <Providers>
           <Navbar />
-          <main className="container mx-auto px-6 py-8">{children}</main>
+          <main className="container mx-auto px-6 py-8 bg-slate-50/80 dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/50 dark:border-slate-700/50">{children}</main>
           <Footer />
         </Providers>
       </body>

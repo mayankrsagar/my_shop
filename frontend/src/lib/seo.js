@@ -1,11 +1,11 @@
 // SEO configuration and utilities
 export const siteConfig = {
-  name: "MyShop - Premium Online Shopping",
-  description: "Discover premium products at unbeatable prices. Shop electronics, fashion, home goods and more with fast shipping and secure checkout.",
-  url: "https://myshop.com",
+  name: "BuyBloom - Where Shopping Blooms",
+  description: "Discover amazing products at BuyBloom. Shop electronics, fashion, home goods and more with fast shipping and secure checkout. Your marketplace that grows with you.",
+  url: "https://buybloom.com",
   ogImage: "/og-image.jpg",
-  keywords: "online shopping, ecommerce, electronics, fashion, home goods, premium products, fast shipping",
-  author: "MyShop Team"
+  keywords: "online shopping, ecommerce, electronics, fashion, home goods, BuyBloom, marketplace, fast shipping",
+  author: "BuyBloom Team"
 };
 
 export const generateMetadata = ({
@@ -61,7 +61,7 @@ export const generateMetadata = ({
       title: metaTitle,
       description: metaDescription,
       images: [metaImage],
-      creator: '@myshop',
+      creator: '@buybloom',
     },
     alternates: {
       canonical: metaUrl,
@@ -73,13 +73,15 @@ export const generateProductStructuredData = (product) => ({
   "@context": "https://schema.org/",
   "@type": "Product",
   "name": product.name,
-  "image": product.images,
+  "image": product.images || product.image,
   "description": product.description,
   "sku": product._id,
   "brand": {
     "@type": "Brand",
-    "name": product.brand || "MyShop"
+    "name": product.brand || "BuyBloom"
   },
+  "category": product.category,
+  "keywords": product.tags ? product.tags.join(", ") : "",
   "offers": {
     "@type": "Offer",
     "url": `${siteConfig.url}/product/${product._id}`,
@@ -88,7 +90,7 @@ export const generateProductStructuredData = (product) => ({
     "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     "seller": {
       "@type": "Organization",
-      "name": "MyShop"
+      "name": "BuyBloom"
     }
   },
   "aggregateRating": product.rating ? {
@@ -110,8 +112,8 @@ export const generateOrganizationStructuredData = () => ({
     "contactType": "customer service"
   },
   "sameAs": [
-    "https://facebook.com/myshop",
-    "https://twitter.com/myshop",
-    "https://instagram.com/myshop"
+    "https://facebook.com/buybloom",
+    "https://twitter.com/buybloom",
+    "https://instagram.com/buybloom"
   ]
 });

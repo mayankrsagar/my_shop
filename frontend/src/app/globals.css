@@ -1,31 +1,25 @@
 @import "tailwindcss";
 
+/* Light theme variables */
 :root {
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --foreground: #1a202c;
   --card-bg: rgba(255, 255, 255, 0.95);
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: rgba(255, 255, 255, 0.2);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: linear-gradient(
-      135deg,
-      #1a1a2e 0%,
-      #16213e 50%,
-      #0f3460 100%
-    );
-    --foreground: #e2e8f0;
-    --card-bg: rgba(30, 41, 59, 0.95);
-  }
+/* Dark theme variables */
+.dark {
+  --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  --foreground: #e2e8f0;
+  --card-bg: rgba(30, 41, 59, 0.95);
+  --glass-bg: rgba(0, 0, 0, 0.2);
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
 body {
@@ -62,9 +56,9 @@ body {
 
 /* Glass morphism effect */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
 }
 
 /* Gradient text */
